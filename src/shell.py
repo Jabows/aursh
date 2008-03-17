@@ -11,7 +11,6 @@ import cmd
 import string
 import sys
 import os
-import os.path
 import readline
 
 import conf
@@ -77,8 +76,6 @@ class Shell(cmd.Cmd):
             for obj in dir(module["name"]):
                 if obj.startswith(self.class_prefix):
                     try:
-                        # check if it's method
-                        x = getattr(module['name'], obj)(self.io, conf)
                         # create instance for each class
                         module_objs[obj[len(self.class_prefix):]] = \
                             getattr(module['name'], obj)(self.io, self.conf)

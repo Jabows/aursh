@@ -1,8 +1,7 @@
+import shutil
 import os
-import os.path
 import sys
 import re
-import shutil
 
 
 class BasicABS(object):
@@ -14,11 +13,12 @@ class BasicABS(object):
         self.conf = conf
         self.io = io
 
-    def aursearch(self, pkgname):
+    def abs_search(self, pkgname):
         """Search in ABS. Returns path or None."""
         for root, dirs, files in os.walk(self.conf.abs_path):
-            for pkgname in dirs:
-                return os.path.join(root, pkgname)
+            for dir in dirs:
+                if dir == pkgname:
+                    return os.path.join(root, dir)
         return None
 
     def do_builddir(self, bdir=None, *ignore):
@@ -42,19 +42,29 @@ class BasicABS(object):
         return False
 
     def compilepath(self, pkgname):
-        """Return path to pakgname in builddir or None if doesn't exit"""
+        """Return pakgname path (don't have to exist)."""
         return os.path.join(self.conf.build_dir, pkgname)
 
     def check_compilepath(self, pkgname):
+        """Return path to pakgname in builddir or None if doesn't exit"""
         dir = self.compilepath(pkgname)
         if not os.path.isdir(dir):
             return None
         return dir
 
+    def check_pkgbuild(self, pkgname):
+        """Bla bla bla"""
+        pkgfile = os.path.join(self.compilepath(pkgname), "PKGBUILD")
+        if not os.path.isfile(pkgfile):
+            return None
+        return self.compilepath(pkgname)
+
     def copy(self, path_from, path_to=None):
         """Copy `path` do conf.build_dir"""
         if not path_to:
             path_to = self.conf.build_dir
+            dir, pkgname = os.path.split(path_from)
+            path_to = os.path.join(path_to, pkgname)
         if os.path.isdir(path_to):
             if self.io.ask("#{GREEN}Directory exist. Delete it? #{NONE}"):
                 shutil.rmtree(path_to)
@@ -66,28 +76,51 @@ class BasicABS(object):
 
     def makepkg(self, pkgname):
         """Compile package"""
-        dir = self.check_compilepath(pkgname)
+        dir = self.check_pkgbuild(pkgname)
         if not dir:
             return False
         os.system("cd %s && %s" % (dir, self.conf.compile_cmd))
         return True
 
     def install(self, pkgname):
-        """Install `pkgname` package"""
-        dir = self.compilepath(pkgname)
+        """Install package"""
+        dir = self.check_compilepath(pkgname)
         if not dir:
             return False
+        # list all pkg.tar.gz files
+        pkglist = []
+        for file in os.listdir(dir):
+            if file.endswith("pkg.tar.gz"):
+                pkglist.append(file)
         # If more that one *.pkg.tar.gz file found
-        # TODO [ 15:33 - 17.03.2008 ] 
-        pass
+        if len(pkglist) == 0:
+            return False
+        elif len(pkglist) == 1:
+            pkgfile = pkglist[0]
+        else:
+            self.io.put("#{BLUE}More than one package found. Please choose one:#{NONE}\n")
+            for n, pkg in enumerate(pkglist):
+                self.io.put("#{GREEN}  %2d . . .#{WHITE} %s#{NONE}" % (n, pkg))
+            i = self.io.get("\n#{BLUE}Enter number, or press Enter to abort : #{NONE}")
+            try:
+                i = int(i)
+            except ValueError:
+                return True
+            if i > len(pkglist) - 1 or i < 0:
+                self.io.put("#{RED}Bad value #{WHITE}- out of range.#{NONE}")
+                return True
+            pkgfile = pkglist[i]
+        os.system("cd %s && %s %s" % (dir, self.conf.install_cmd, pkgfile))
+        return True
 
-    def edit(self, pkgname, file="PKGBUILD"):
+
+    def edit_file(self, pkgname, file="PKGBUILD"):
         """Edit `file` with conf.edior.
         `file` should be in conf.build_dir/pkgname
         """
-        dir = self.compilepath(pkgname)
-        if not dir:
+        pkgfile = os.path.join(self.compilepath(pkgname), file)
+        if not os.path.isfile(pkgfile):
             return False
-        os.system("%s %s" % (self.conf.edior, dir))
+        os.system("%s %s" % (self.conf.editor, pkgfile))
         return True
 
