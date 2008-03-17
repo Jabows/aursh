@@ -1,0 +1,9 @@
+Aurshell is Python shell, that should help you with building and installing 
+packages from ABS and AUR. It also can be pacman wrapper, and even more (just
+write plugin ;)
+
+
+
+If you know how to improve aurshell or you've found a bug, please contact me
+    
+phusiatynski /at/ gmail /dot/ com
