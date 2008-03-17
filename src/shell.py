@@ -61,7 +61,7 @@ class Shell(cmd.Cmd):
             module_path = os.path.abspath(
                     string.join(modules_path, module_name))
             (module_name, module_extension) = os.path.splitext(module_name)
-            # if it shouldn't be load
+            # if it shouldn't be loaded
             if os.path.islink(module_path) or  \
                     module_path == __file__ or \
                     module_extension != ".py":
