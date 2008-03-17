@@ -29,7 +29,10 @@ class Shell(cmd.Cmd):
         # use this instead of plain `print`
         self.io = InOut()
         self.conf = conf
-        self.cmdprefix = "do_"
+        # load as plugins all class that name stasts with class_prefix
+        self.class_prefix = "Plugin_"
+        # use all methods that name stasts with method_prefix
+        self.method_prefix = "do_"
         self.prompt = self.io.colorize(self.conf.shell_prompt)
         self.intro = self.io.colorize(self.conf.shell_intro)
         # load plugins
@@ -72,16 +75,13 @@ class Shell(cmd.Cmd):
         module_objs = {}
         for module in command_modules:
             for obj in dir(module["name"]):
-                # TODO [ 22:33 - 15.03.2008 ] 
-                # better class serch
-                if not obj.startswith("_"):
+                if obj.startswith(self.class_prefix):
                     try:
                         # check if it's method
                         x = getattr(module['name'], obj)(self.io, conf)
                         # create instance for each class
-                        # as agrument give it Put() class instance
-                        module_objs[obj] = \
-                            getattr(module['name'], obj)(self.io, conf)
+                        module_objs[obj[len(self.class_prefix):]] = \
+                            getattr(module['name'], obj)(self.io, self.conf)
                     except TypeError:
                         pass
         return module_objs
@@ -127,7 +127,7 @@ class Shell(cmd.Cmd):
             if not cmd[0] in self.commands:
                 self.io.put("%s : command not found." % cmd[0])
                 return None
-            cmd[1] = self.cmdprefix + cmd[1]
+            cmd[1] = self.method_prefix + cmd[1]
             # if method named arg[1] exist in class arg[0], try to run it
             if cmd[1] in dir(self.commands[cmd[0]]):
                 try:
@@ -139,18 +139,18 @@ class Shell(cmd.Cmd):
                         self.io.put(doc.__doc__)
                     else:
                         self.io.put("%s : bad usage" %
-                                cmd[1][len(self.cmdprefix):])
+                                cmd[1][len(self.method_prefix):])
             else:
                 # try tu run __call__() method
                 try:
-                    cmd[1] = cmd[1][len(self.cmdprefix):]
+                    cmd[1] = cmd[1][len(self.method_prefix):]
                     getattr(self.commands[cmd[0]], "__call__")(*cmd)
-                except TypeError:
-                    self.io.put("%s : bad usage" % cmd[0])
+                except (TypeError, AttributeError):
+                    self.io.put("  %s  : #{RED}bad usage#{NONE}" % cmd[0])
 
     def completenames(self, text, *ignored):
         """Complete commands"""
-        dotext = self.cmdprefix + text
+        dotext = self.method_prefix + text
         # local methods
         local_cmd_list = \
                 [a[3:] + " " for a in self.get_names() if a.startswith(dotext)]
@@ -164,7 +164,7 @@ class Shell(cmd.Cmd):
 
     def completedefault(self, text, line, begidx, endidx):
         """Complete commands argument"""
-        dotext = self.cmdprefix + text
+        dotext = self.method_prefix + text
         line = line.split()
         # if only commands was given
         if len(line) == 1:
@@ -179,14 +179,16 @@ class Shell(cmd.Cmd):
         return cmds
 
     def do_help(self, arg):
-        """Show help for commands"""
+        """Show help for commands
+        Usage: help <command> [<argument>]
+        """
         arg = arg.split()
         if not arg:
-            self.io.put("Usage: help <command>")
+            self.io.put("Usage: help <command> [<argument>]")
         elif len(arg) == 1:
             # first - build-in methods
-            if self.cmdprefix + arg[0] in dir(self):
-                doc = getattr(self, self.cmdprefix + arg[0]).__doc__
+            if self.method_prefix + arg[0] in dir(self):
+                doc = getattr(self, self.method_prefix + arg[0]).__doc__
                 if doc:
                     self.io.put(doc)
             # modules help
@@ -206,14 +208,16 @@ class Shell(cmd.Cmd):
         elif len(arg) == 2:
             try:
                 if arg[0] in self.commands:
-                    arg[1] = self.cmdprefix + arg[1]
+                    arg[1] = self.method_prefix + arg[1]
                     doc = getattr(self.commands[arg[0]], arg[1]).__doc__
-                    self.io.put(doc)
+                    if doc:
+                        self.io.put(doc)
+                    else:
+                        raise AttributeError
             except AttributeError:
-                self.io.put("%s : no help found" % arg[1][3:])
+                self.io.put("#{BOLD} %s #{NONE}: no help found" % arg[1][3:])
         else:
-            # TODO [ 23:03 - 15.03.2008 ]  
-            self.io.put("Try to do something else.\nThis option doesn't work well now.")
+            self.io.put(self.do_help.__doc__)
 
     def do_history(self, hnumb=None, *ignored):
         """Show the history"""
@@ -251,6 +255,10 @@ class Shell(cmd.Cmd):
     history 11-20  -> from 11 to 20
     history 22-     -> from 22 fo the end of history file
     history -22     -> same as 22-""")
+
+    def do_clear(self, *ignored):
+        # TODO [ 21:13 - 16.03.2008 ] 
+        os.system('clear')
 
     def do_quit(self, *ignored):
         """Quit from shell"""

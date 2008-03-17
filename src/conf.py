@@ -24,6 +24,7 @@ build_dir = os.path.join(os.path.expanduser("~"), "aurshell")
 install_cmd = "sudo pacman -U "
 # compile command
 compile_cmd = "makepkg -f "
+editor = 'vim'
 # AUR url
 aur_url = "http://aur.archlinux.com"
 # ABS path

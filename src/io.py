@@ -40,6 +40,8 @@ class InOut(object):
             return True
         elif a == bad.lower():
             return False
-        else:
+        elif not a:
+            self.put("Type #{BOLD}%s#{NONE} or #{BOLD}%s#{NONE}" % \
+                    (good, bad))
             return self.ask(question, good, bad, newline)
 
