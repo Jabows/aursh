@@ -2,9 +2,9 @@
 # -*- coding: UTF-8 -*-
 
 """
-Aur Shell is simple shell framework. 
+Shell class is simple shell framework. 
 
-To use it, write some plugins that Aur Shell would use.
+To use it, write some plugins that Shell would be able to use.
 """
 
 import cmd
