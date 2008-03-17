@@ -16,8 +16,9 @@ class Colorize(object):
 
 
 class ColorsTemplate(dict):
-    def __init__(self, colors={}):
+    def __init__(self, colors={}, mono=False):
         self.template = "#{%s}"
+        self.mono = mono
         # colors escape symbols
         self._colors = {
                 "none"          : "\033[0m",
@@ -62,6 +63,8 @@ class ColorsTemplate(dict):
     def __getitem__(self, key):
         # TODO [ 12:35 - 15.03.2008 ]  
         # better key checking
+        if self.mono:
+            return ""
         key = key[2:-1]
         return self._colors[key]
 

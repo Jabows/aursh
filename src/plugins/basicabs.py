@@ -83,7 +83,7 @@ class BasicABS(object):
         return True
 
     def install(self, pkgname):
-        """Install package"""
+        """Install package if exist and return True. Return False if not."""
         dir = self.check_compilepath(pkgname)
         if not dir:
             return False

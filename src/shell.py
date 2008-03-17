@@ -25,9 +25,10 @@ class Shell(cmd.Cmd):
     """
     def __init__(self):
         cmd.Cmd.__init__(self)
+        self.conf = conf
         # use this instead of plain `print`
         self.io = InOut()
-        self.conf = conf
+        self.io.colorize.colors.mono = not self.conf.use_colors
         # load as plugins all class that name stasts with class_prefix
         self.class_prefix = "Plugin_"
         # use all methods that name stasts with method_prefix
