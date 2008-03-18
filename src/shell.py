@@ -146,11 +146,7 @@ class Shell(cmd.Cmd):
                 try:
                     getattr(self.commands[cmd[0]], cmd[1])(*cmd[2:])
                 except TypeError:
-                    # show __doc__ if exist
-                    doc = getattr(self.commands[cmd[0]], cmd[1])
-                    if doc.__doc__:
-                        self.io.put(doc.__doc__)
-                    else:
+                    if not self.do_help(*cmd):
                         self.io.put("%s : bad usage" %
                                 cmd[1][len(self.method_prefix):])
             else:
@@ -191,46 +187,39 @@ class Shell(cmd.Cmd):
             cmds = []
         return cmds
 
+    def get_help(self, arg):
+        """Return __doc__ or None if doesn't exist"""
+        arg = arg.split()
+        if len(arg) == 1:
+            # first - search in build-in methods
+            method = self.method_prefix + arg[0]
+            if method in dir(self):
+                doc = getattr(self, method).__doc__
+                if doc:
+                    return doc.replace(' ' * 4, '')
+            elif arg[0] in self.commands and self.commands[arg[0]].__doc__:
+                    return self.commands[arg[0]].__doc__.replace(' ' * 4, '')
+        elif len(arg) == 2:
+            method = self.method_prefix + arg[1]
+            if arg[0] in self.commands and \
+                    method in dir(self.commands[arg[0]]):
+                doc = getattr(self.commands[arg[0]], method).__doc__
+                if doc:
+                    return doc.replace(' ' * 4, '')
+        return None
+
     def do_help(self, arg):
         """Show help for commands
         Usage: help <command> [<argument>]
         """
-        arg = arg.split()
         if not arg:
             self.io.put("Usage: help <command> [<argument>]")
-        elif len(arg) == 1:
-            # first - build-in methods
-            if self.method_prefix + arg[0] in dir(self):
-                doc = getattr(self, self.method_prefix + arg[0]).__doc__
-                if doc:
-                    self.io.put(doc)
-            # modules help
-            else:
-                try:
-                    # try to run help() method
-                    self.io.put(getattr(self.commands[arg[0]], "help")())
-                except AttributeError:
-                    # try to show __doc__
-                    if self.commands[arg[0]].__doc__:
-                        self.io.put(self.commands[arg[0]].__doc__)
-                    else:
-                        self.io.put("No help found.")
-                except KeyError:
-                    self.io.put("No help found.")
-
-        elif len(arg) == 2:
-            try:
-                if arg[0] in self.commands:
-                    arg[1] = self.method_prefix + arg[1]
-                    doc = getattr(self.commands[arg[0]], arg[1]).__doc__
-                    if doc:
-                        self.io.put(doc)
-                    else:
-                        raise AttributeError
-            except AttributeError:
-                self.io.put("#{BOLD} %s #{NONE}: no help found" % arg[1][3:])
         else:
-            self.io.put(self.do_help.__doc__)
+            doc = self.get_help(arg)
+            if doc:
+                self.io.put("#{BOLD}%s#{NONE}" % doc)
+            else:
+                self.io.put("No help found.")
 
     def do_history(self, hnumb=None, *ignored):
         """Show the history"""
@@ -265,9 +254,9 @@ class Shell(cmd.Cmd):
             except ValueError:
                 self.io.put("""#{RED}Bad value. #{NONE}
 #{BOLD}Usage: history <number or range>#{NONE}
-    history 11-20  -> from 11 to 20
-    history 22-     -> from 22 fo the end of history file
-    history -22     -> same as 22-""")
+    history  11-20      from 11 to 20
+    history  22-        from 22 fo the end of history file
+    history  -22        same as 22-""")
 
     def do_clear(self, *ignored):
         # TODO [ 21:13 - 16.03.2008 ] 

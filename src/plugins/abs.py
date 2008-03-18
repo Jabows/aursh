@@ -42,8 +42,10 @@ class Plugin_abs(basicabs.BasicABS):
         """Copy files from ABS to users build directory"""
         self.copy(self.abs_search(pkgname))
 
-    def do_compile(self, pkgname, *ignore):
-        """Run conf.compile_cmd in given path"""
+    def do_build(self, pkgname, *ignore):
+        """If no files found, copy them to build dir.
+        Run conf.compile_cmd in given path
+        """
         if not self.makepkg(pkgname):
             self.copy(self.abs_search(pkgname))
             return self.makepkg(pkgname)
@@ -53,3 +55,6 @@ class Plugin_abs(basicabs.BasicABS):
         if not self.install(pkgname):
             self.io.put(" #{BOLD}No package found. You have to compile it first.#{NONE}")
 
+    def do_compile(self, pkgname, *ignore):
+        """Compile file, or do nothing if PKGBUILD not found."""
+        pass
