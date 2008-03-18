@@ -146,9 +146,8 @@ class Shell(cmd.Cmd):
                 try:
                     getattr(self.commands[cmd[0]], cmd[1])(*cmd[2:])
                 except TypeError:
-                    if not self.do_help(*cmd):
-                        self.io.put("%s : bad usage" %
-                                cmd[1][len(self.method_prefix):])
+                    self.io.put("#{BOLD}%s #{NONE}: bad usage" % \
+                            cmd[1][len(self.method_prefix):])
             else:
                 # try tu run __call__() method
                 try:

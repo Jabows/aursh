@@ -11,6 +11,12 @@ import os
 
 
 alias = {
+    "compile"   : "base makepkg",
+    "makepkg"   : "base makepkg",
+    "install"   : "base install",
+    "edit"      : "base edit",
+    "copy"      : "base copy",
+    "builddir"  : "base builddir",
     "h"         : "history",
     "info"      : "help",
 }
