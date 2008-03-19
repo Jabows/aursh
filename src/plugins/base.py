@@ -80,7 +80,7 @@ class Plugin_base(object):
         """Install package if exist and return True. Return False if not."""
         dir = self.check_compilepath(pkgname)
         if not dir:
-            self.io.put("Path  #{BOLD}%s/%s#{NONE}  does not exist." % \
+            self.io.put("Path #{blue}%s/#{BOLD}%s#{NONE} does not exist." % \
                     (self.conf.build_dir, pkgname))
             return False
         # list all pkg.tar.gz files
@@ -90,7 +90,7 @@ class Plugin_base(object):
                 pkglist.append(file)
         # If more that one *.pkg.tar.gz file found
         if len(pkglist) == 0:
-            self.io.put("Package #{BOLD}%s#{NONE} not found." % pkgname)
+            self.io.put("Make package first.")
             return False
         elif len(pkglist) == 1:
             pkgfile = pkglist[0]
@@ -112,12 +112,16 @@ class Plugin_base(object):
 
 
     def do_edit(self, pkgname, file="PKGBUILD", *ignore):
-        """Edit `file` with conf.edior.
-        `file` should be in conf.build_dir/pkgname
+        """Edit file with conf.edior.
+        File should be in conf.build_dir/pkgname and by default, it's PKGBUILD.
         """
-        pkgfile = os.path.join(self.compilepath(pkgname), file)
-        if not os.path.isfile(pkgfile):
+        efile = os.path.join(self.compilepath(pkgname), file)
+        if not os.path.isfile(efile):
+            self.io.put("#{BOLD}%s#{RED} does not exist.#{NONE}" % efile)
+            filepath = os.path.split(efile)[0]
+            for n, f in enumerate(os.listdir(filepath)):
+                self.io.put("   #{WHITE}%2d #{GREEN} %s #{NONE}" % (n, f))
             return False
-        os.system("%s %s" % (self.conf.editor, pkgfile))
+        os.system("%s %s" % (self.conf.editor, efile))
         return True
 
