@@ -117,11 +117,18 @@ class Shell(cmd.Cmd):
     def emptyline(self):
         pass
 
-    def default(self, cmd=None):
-        """Run commands.
+    def run_command(self, cmd):
+        if self.conf.cmd_separator in cmd:
+            # multicommand
+            for c in cmd.split(self.conf.cmd_separator):
+                c = c.strip()
+                self.io.put("#{GREEN}:::: running : #{green} %s #{NONE}" % c)
+                self.run_single_command(c)
+        else:
+            # single command
+            self.run_single_command(cmd)
 
-        cmd = (<class>, [method], [arg1], [arg2], ...)
-        """
+    def run_single_command(self, cmd):
         # cmd[0] should be class name
         # cmd[1] should be method name (or arugmet if class is callable)
         # cmd[1] can be empty
@@ -155,6 +162,13 @@ class Shell(cmd.Cmd):
                     getattr(self.commands[cmd[0]], "__call__")(*cmd)
                 except (TypeError, AttributeError):
                     self.io.put("  %s  : #{RED}bad usage#{NONE}" % cmd[0])
+
+    def default(self, cmd, *ignore):
+        """Run commands.
+
+        cmd = (<class>, [method], [arg1], [arg2], ...)
+        """
+        self.run_command(cmd)
 
     def completenames(self, text, *ignored):
         """Complete commands"""

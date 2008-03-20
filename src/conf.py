@@ -43,6 +43,14 @@ compile_cmd = "makepkg -f "
 
 editor = 'vim'
 
+# separator for single line commands
+cmd_separator = ";"
+
+# arguments template
+# example: abs search something; abs install {{1}} 
+# for runnging abs search somethins and then abs install something
+arg_list_template = "{{arg}}"
+
 # AUR url
 aur_url = "http://aur.archlinux.com"
 
