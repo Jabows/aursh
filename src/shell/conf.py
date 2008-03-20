@@ -46,6 +46,11 @@ editor = 'vim'
 # separator for single line commands
 cmd_separator = ";"
 
+# send list of arguments to many commands
+# abs search {cmd_separator} aur search << vim xorg
+# where {cmd_separator} is ; by default
+arguments_pipe = "<<"
+
 # arguments template
 # example: abs search something; abs install {{1}} 
 # for runnging abs search somethins and then abs install something

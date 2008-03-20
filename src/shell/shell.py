@@ -99,75 +99,65 @@ class Shell(cmd.Cmd):
                         pass
         return module_objs
 
-    def precmd(self, cmd):
-        """check if alias exists and if so, replace command"""
-        for alias in self.conf.alias:
-            # command should start with alias, but:
-            # - next char should be white space, or
-            # - there's no next char
-            if cmd.startswith(alias) and \
-                    (len(cmd) <= len(alias) or cmd[len(alias)] == " "):
-                cmd = cmd.replace(alias, self.conf.alias[alias], 1)
-        return cmd
-
     def do_shell(self, cmd):
         """System shell command, for commads which starts with !"""
         os.system(cmd)
 
     def emptyline(self):
+        """If no commad was given"""
         pass
 
-    def run_command(self, cmd):
-        if self.conf.cmd_separator in cmd:
-            # multicommand
-            for c in cmd.split(self.conf.cmd_separator):
-                c = c.strip()
-                self.io.put("#{GREEN}:::: running : #{green} %s #{NONE}" % c)
-                self.run_single_command(c)
-        else:
-            # single command
-            self.run_single_command(cmd)
+    def replace_alias(self, cmd):
+        """check if alias exists and if so, replace command"""
+        for alias in self.conf.alias:
+            if cmd.startswith(alias) and \
+                    (len(cmd) == len(alias) or cmd[len(alias)] == " "):
+                cmd = cmd.replace(alias, self.conf.alias[alias], 1)
+        return cmd
 
-    def run_single_command(self, cmd):
-        # cmd[0] should be class name
-        # cmd[1] should be method name (or arugmet if class is callable)
-        # cmd[1] can be empty
-        # cmd[2:] should be method argumments, can be empty
-        cmd = cmd.split()
-        # operations for single command with no arguments
-        if len(cmd) == 1:
-            # if there's no such command (or plugin class)
-            if not cmd[0] in self.commands:
-                self.io.put("%s : command not found." % cmd[0])
-            else:
-                self.io.put("%s : bad usege. Try to run help." % cmd[0])
-        # if command was called with arguments
-        elif len(cmd) > 1:
+    def run_command(self, cmd):
+        """Split multicommand and each one separatly"""
+        def run_single_command(cmd):
+            """Run single command."""
+            # alias first
+            cmd = self.replace_alias(cmd)
             # no such command
+            cmd = cmd.split()
             if not cmd[0] in self.commands:
                 self.io.put("%s : command not found." % cmd[0])
-                return None
-            cmd[1] = self.method_prefix + cmd[1]
-            # if method named arg[1] exist in class arg[0], try to run it
-            if cmd[1] in dir(self.commands[cmd[0]]):
-                try:
-                    getattr(self.commands[cmd[0]], cmd[1])(*cmd[2:])
-                except TypeError:
-                    self.io.put("#{BOLD}%s #{NONE}: bad usage" % \
-                            cmd[1][len(self.method_prefix):])
+            elif len(cmd) == 1:
+                # TODO [ 13:54 - 20.03.2008 ] 
+                # if class is callable with no arguments?
+                self.io.put("%s : bad usege. Try to run help." % cmd[0])
             else:
-                # try tu run __call__() method
-                try:
-                    cmd[1] = cmd[1][len(self.method_prefix):]
-                    getattr(self.commands[cmd[0]], "__call__")(*cmd)
-                except (TypeError, AttributeError):
-                    self.io.put("  %s  : #{RED}bad usage#{NONE}" % cmd[0])
+                argmethod = self.method_prefix + cmd[1]
+                # if cmd[1] is class method
+                if argmethod in dir(self.commands[cmd[0]]):
+                    try:
+                        getattr(self.commands[cmd[0]], argmethod)(*cmd[2:])
+                    except TypeError:
+                        self.io.put("#{BOLD}%s #{NONE}: bad usage" % cmd[1])
+                else:
+                    # try tu run __call__() method
+                    try:
+                        getattr(self.commands[cmd[0]], "__call__")(*cmd[1:])
+                    except (TypeError, AttributeError):
+                        self.io.put("  %s  : #{RED}bad usage#{NONE}" % cmd[0])
+        # do the arguments pipe
+        arg_list = ''
+        if self.conf.arguments_pipe in cmd:
+            cmd, arg_list = cmd.split(self.conf.arguments_pipe, 1)
+        # split by the conf.cmd_separator
+        cmd_list = cmd.split(self.conf.cmd_separator)
+        # split the cmd_list into cmd and arg_list
+        for c in cmd_list:
+            c = c.strip()
+            c = " ".join([c, arg_list])
+            run_single_command(c)
+
 
     def default(self, cmd, *ignore):
-        """Run commands.
-
-        cmd = (<class>, [method], [arg1], [arg2], ...)
-        """
+        """When commad was given"""
         self.run_command(cmd)
 
     def completenames(self, text, *ignored):
