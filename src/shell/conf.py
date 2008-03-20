@@ -25,7 +25,7 @@ alias = {
 # use color output? [True/False]
 use_colors = True
 
-plugins_path = os.path.join(os.path.dirname(__file__), "plugins/")
+plugins_path = os.path.join(os.getcwd(), "plugins/")
 
 # history file, by default in home dir
 history_file = os.path.join(os.path.expanduser("~"), ".aurshell_history")
