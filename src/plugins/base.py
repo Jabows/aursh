@@ -123,5 +123,5 @@ class Plugin_base(object):
                 self.io.put("   #{WHITE}%2d #{GREEN} %s #{NONE}" % (n, f))
             return False
         os.system("%s %s" % (self.conf.editor, efile))
-        return True
+        return efile
 

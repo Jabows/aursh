@@ -62,13 +62,14 @@ aur_url = "http://aur.archlinux.com"
 abs_path = "/var/abs"
 
 # shell prompt
-shell_prompt = " #{BLUE}[ #{NONE}aurshell #{BLUE}] #{NONE}"
+shell_prompt = "#{BOLD} aurshell #{BLUE}> #{NONE}"
 
 # hello message
 shell_intro = """
             #{BOLD} Welcome to #{BLUE} aurshell #{NONE}
 
-    Press #{BOLD}<TAB>#{NONE} twice, to list all commands.
-      Press #{BOLD}Ctrl + d#{NONE} of type #{BOLD}quit#{NONE} to quit.
+        Press #{BOLD}<TAB>#{NONE} twice, to list all commands.
+  Type #{BOLD}help <command>#{NONE} to show help for given command.
+          Press #{BOLD}Ctrl + d#{NONE} of type #{BOLD}quit#{NONE} to quit.
 """
 

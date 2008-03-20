@@ -192,6 +192,10 @@ class Shell(cmd.Cmd):
     def get_help(self, arg):
         """Return __doc__ or None if doesn't exist"""
         arg = arg.split()
+        if arg[0] in self.conf.alias:
+            self.io.put("#{BOLD}%s#{NONE} is alias for #{BOLD}%s#{NONE}" % \
+                    (arg[0], self.conf.alias[arg[0]]))
+            arg = self.conf.alias[arg[0]].split()    
         if len(arg) == 1:
             # first - search in build-in methods
             method = self.method_prefix + arg[0]
@@ -215,11 +219,11 @@ class Shell(cmd.Cmd):
         Usage: help <command> [<argument>]
         """
         if not arg:
-            self.io.put("Usage: help <command> [<argument>]")
+            self.do_help('help')
         else:
             doc = self.get_help(arg)
             if doc:
-                self.io.put("#{BOLD}%s#{NONE}" % doc)
+                self.io.put("%s" % doc)
             else:
                 self.io.put("No help found.")
 
