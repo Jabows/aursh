@@ -17,7 +17,6 @@ alias = {
     "edit"      : "base edit",
     "copy"      : "base copy",
     "builddir"  : "base builddir",
-    "h"         : "history",
     "info"      : "help",
 }
 
