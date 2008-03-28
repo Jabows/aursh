@@ -1,9 +1,9 @@
 import signal
 import sys
 import os
-sys.path.append(os.path.join(os.getcwd(), 'shell'))
-import shell
 
+from shell import shell
+import conf
 
 def signal_handler(sig, frame):
     pass
@@ -11,7 +11,7 @@ def signal_handler(sig, frame):
 if __name__ == '__main__':
     #signal.signal(signal.SIGINT, signal_handler)
     try:
-        aursh = shell.Shell()
+        aursh = shell.Shell(conf)
         aursh.cmdloop()
     except KeyboardInterrupt:
         # TODO [ 23:18 - 15.03.2008 ] 

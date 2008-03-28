@@ -28,7 +28,6 @@ import sys
 import os
 import readline
 
-import conf
 from io import InOut
 
 __version__ = "0.1"
@@ -38,9 +37,9 @@ class Shell(cmd.Cmd):
     """Interactive shell framework.
     To use it, write some modules, becouse by default it's very poor shell.
     """
-    def __init__(self):
+    def __init__(self, configuration):
         cmd.Cmd.__init__(self)
-        self.conf = conf
+        self.conf = configuration
         # use this instead of plain `print`
         self.io = InOut()
         self.io.colorize.colors.mono = not self.conf.use_colors
@@ -195,7 +194,7 @@ class Shell(cmd.Cmd):
         if arg[0] in self.conf.alias:
             self.io.put("#{BOLD}%s#{NONE} is alias for #{BOLD}%s#{NONE}" % \
                     (arg[0], self.conf.alias[arg[0]]))
-            arg = self.conf.alias[arg[0]].split()    
+            arg = self.conf.alias[arg[0]].split()
         if len(arg) == 1:
             # first - search in build-in methods
             method = self.method_prefix + arg[0]
@@ -270,15 +269,12 @@ class Shell(cmd.Cmd):
 
     def do_quit(self, *ignored):
         """Quit from shell"""
-        if conf.history_length:
-            readline.write_history_file(conf.history_file)
+        if self.conf.history_length:
+            readline.write_history_file(self.conf.history_file)
         self.io.put('#{BLUE}quit..#{NONE}')
         sys.exit(1)
     
-    # function aliases
+    # method aliases
     do_EOF = do_quit
     do_exit = do_quit
-
-
-    
 
