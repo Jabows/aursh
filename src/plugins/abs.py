@@ -16,6 +16,8 @@ class BasicABS(object):
 
     def abs_search(self, pkgname):
         """Search in ABS. Returns path or None."""
+        # TODO [ 22:22 - 28.03.2008 ] 
+        # better (faster) PKGBUILD search!
         for root, dirs, files in os.walk(self.conf.abs_path):
             for dir in dirs:
                 if dir == pkgname:
@@ -33,9 +35,9 @@ class BasicABS(object):
             return None
         return dir
 
-    def check_pkgbuild(self, pkgname):
-        """Bla bla bla"""
-        pkgfile = os.path.join(self.compilepath(pkgname), "PKGBUILD")
+    def check_pkgbuild(self, pkgname, pkgbuild="PKGBUILD"):
+        """Check if PKGBUILD for given pkgname exist in ABS."""
+        pkgfile = os.path.join(self.compilepath(pkgname), pkgbuild)
         if not os.path.isfile(pkgfile):
             return None
         return self.compilepath(pkgname)
@@ -57,16 +59,16 @@ class BasicABS(object):
 
 
 class Plugin_abs(BasicABS):
-    """Do some stuff with ABS. Search, compile, install. 
-    """
+    """Do some stuff with ABS. Search, compile, install."""
     def __init__(self, io, conf):
-        # TODO [ 18:07 - 17.03.2008 ] 
-        BasicABS.__init__(self, io, conf)
+        super(Plugin_abs, self).__init__(io, conf)
         self.io = io
         self.conf = conf
 
     def do_search(self, pkgname, *ignore):
         """Find PKGBUILDs in ABS file tree and show them."""
+        # TODO [ 22:26 - 28.03.2008 ] 
+        # faster searching
         for root, dirs, files in os.walk(self.conf.abs_path):
             for d in dirs:
                 if pkgname in d:
