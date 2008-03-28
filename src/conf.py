@@ -50,11 +50,6 @@ cmd_separator = ";"
 # where {cmd_separator} is ; by default
 arguments_pipe = "<<"
 
-# arguments template
-# example: abs search something; abs install {{1}} 
-# for runnging abs search somethins and then abs install something
-arg_list_template = "{{arg}}"
-
 # AUR url
 aur_url = "http://aur.archlinux.com"
 
