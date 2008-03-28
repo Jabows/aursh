@@ -119,8 +119,12 @@ class Plugin_base(object):
         if not os.path.isfile(efile):
             self.io.put("#{BOLD}%s#{RED} does not exist.#{NONE}" % efile)
             filepath = os.path.split(efile)[0]
-            for n, f in enumerate(os.listdir(filepath)):
-                self.io.put("   #{WHITE}%2d #{GREEN} %s #{NONE}" % (n, f))
+            try:
+                for n, f in enumerate(os.listdir(filepath)):
+                    self.io.put("   #{WHITE}%2d #{GREEN} %s #{NONE}" % (n, f))
+            except OSError:
+                # no such directory
+                pass
             return False
         os.system("%s %s" % (self.conf.editor, efile))
         return efile
