@@ -133,4 +133,6 @@ class Plugin_abs(BasicABS):
         os.system("cd %s && %s %s" % (dir, self.conf.install_cmd, pkgfile))
         return True
 
+    def do_update(self, *ignore):
+        os.system('sudo abs')
 
