@@ -57,7 +57,10 @@ class Plugin_base(object):
             path_to = self.conf.build_dir
             dir, pkgname = os.path.split(path_from)
             path_to = os.path.join(path_to, pkgname)
-        if os.path.isdir(path_to):
+        if not os.path.isdir(path_from):
+            self.io.put("#{GREEN}%s #{NONE} does not exist." % path_from)
+            return False
+        elif os.path.isdir(path_to):
             if self.io.ask("#{GREEN}Directory exist. Delete it? #{NONE}"):
                 shutil.rmtree(path_to)
             else:
