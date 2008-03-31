@@ -17,7 +17,6 @@ alias = {
     "edit"      : "base edit",
     "copy"      : "base copy",
     "builddir"  : "base builddir",
-    "info"      : "help",
 }
 
 
@@ -61,10 +60,11 @@ shell_prompt = "#{BOLD} aurshell #{BLUE}> #{NONE}"
 
 # hello message
 shell_intro = """
-            #{BOLD} Welcome to #{BLUE} aurshell #{NONE}
+            #{WHITE} Welcome to #{BLUE} aurshell #{WHITE}[testing]#{NONE}
 
         Press #{BOLD}<TAB>#{NONE} twice, to list all commands.
   Type #{BOLD}help <command>#{NONE} to show help for given command.
+       Edit #{BOLD}src/conf.py#{NONE} file to change settings.
           Press #{BOLD}Ctrl + d#{NONE} of type #{BOLD}quit#{NONE} to quit.
 """
 

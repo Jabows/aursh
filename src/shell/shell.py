@@ -127,9 +127,11 @@ class Shell(cmd.Cmd):
         if not cmd[0] in self.commands:
             self.io.put("%s : command not found." % cmd[0])
         elif len(cmd) == 1:
-            # TODO [ 13:54 - 20.03.2008 ] 
-            # if class is callable with no arguments?
-            self.io.put("%s : bad usege. Try to run help." % cmd[0])
+            # try tu run __call__() method
+            try:
+                getattr(self.commands[cmd[0]], "__call__")()
+            except (TypeError, AttributeError):
+                self.io.put("%s : bad usege. Try to run help." % cmd[0])
         else:
             argmethod = self.method_prefix + cmd[1]
             # if cmd[1] is class method
