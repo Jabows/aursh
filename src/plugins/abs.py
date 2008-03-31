@@ -40,6 +40,7 @@ class BasicABS(object):
         """Search in ABS. Returns path or None."""
         # TODO [ 22:22 - 28.03.2008 ] 
         # better (faster) PKGBUILD search!
+        self.io.put("#{RED}TODO#{NONE} - searching takes too much time!")
         for root, dirs, files in os.walk(self.conf.abs_path):
             for dir in dirs:
                 if dir == pkgname:
