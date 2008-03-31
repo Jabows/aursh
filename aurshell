@@ -1,4 +1,4 @@
 #!/bin/bash
 
 cd src
-python aurshell.py
+python aurshell.py $@
