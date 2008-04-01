@@ -106,14 +106,17 @@ class Plugin_abs(BasicABS):
                                 (name.ljust(32), ver.ljust(10), root))
                     except IOError:
                         pass
+        return True
 
     def do_copy(self, pkgname, *ignore):
         """Copy files from ABS to users build directory"""
         dir = self.abs_search(pkgname)
         if dir:
             self.copy(dir)
+            return True
         else:
             self.io.put("No PKGBUILD found.")
+            return False
 
     def do_install(self, pkgname, *ignore):
         """Copy files from ABS to use build directory, 
@@ -126,10 +129,10 @@ class Plugin_abs(BasicABS):
                 self.copy(absdir)
             else:
                 self.io.put("No PKGBUILD found.")
-                return None
+                return False
         if not self.check_pkgbuild(pkgname):
             self.io.put("No PKGBUILD found. Files could not copy correctly from ABS")
-            return None
+            return False
         # makepkg
         os.system("cd %s && %s" % \
                 (dir, self.conf.compile_cmd))
@@ -161,4 +164,5 @@ class Plugin_abs(BasicABS):
 
     def do_update(self, *ignore):
         os.system('sudo abs')
+        return True
 

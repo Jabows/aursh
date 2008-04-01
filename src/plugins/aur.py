@@ -67,15 +67,18 @@ class Plugin_aur(object):
         result = self.search_with_json(self.url_search + pkgname)
         if not result:
             self.io.put("No package found")
+            return False
         else:
             for numb, pkg in enumerate(result):
                 self.io.put(" #{BLUE}%3d#{NONE}  %s" % (numb+1, pkg['Name']))
+        return True
 
     def do_info(self, pkgname, *ignore):
         """Show more info about package"""
         result = self.search_with_json(self.url_info + pkgname)
         if not result:
             self.io.put("No such package in AUR")
+            return False
         else:
             for key in result:
                 if not key in ["ID", "Name"]:
@@ -83,6 +86,7 @@ class Plugin_aur(object):
                             (key.rjust(18), result[key]))
             self.io.put("       #{GREEN}Link to AUR#{NONE} : %s" % \
                     self.url_id + result['ID'])
+        return True
 
 
     def do_download(self, pkgname, *ignore):
@@ -102,12 +106,12 @@ class Plugin_aur(object):
         # if no such PKGBUILD in AUR
         if link_list == []:
             self.io.put("No files found.")
-            return
+            return False
         pkgdir = os.path.join(self.conf.build_dir, pkgname)
         if not os.path.isdir(pkgdir):
             os.mkdir(pkgdir)
         elif not self.io.ask('Files allready exists. Rewrite?'):
-            return 
+            return False
         # info about downloading files
         if len(link_list) == 1:
             self.io.put("#{GREEN}Downloading 1 file:#{NONE}")
@@ -117,17 +121,12 @@ class Plugin_aur(object):
             to_download = '/'.join((url, filename))
             self.io.put("  #{BLUE}%3d#{NONE} |  #{BOLD}%s#{NONE}" % (numb + 1, filename))
             urllib.urlretrieve(to_download, os.path.join(pkgdir, filename))
-    
-
-
+        return True
 
     def do_vote(self, pkgname, vote_type=None, *ignore):
         """Vote on PKGBUILD. As argument type + or -"""
         if not vote_type in ["+", "-"]:
             self.io.put("#{RED}Cancel.#{NONE} Vote with + or -")
-            return
+            return False
         self.io.put("Voting on +\nTODO")
-
-    def do_install(self, pkgname, *ignore):
-        """Download and install package from AUR"""
-        self.io.put("#{BOLD}TODO ?#{NONE}")
+        return True

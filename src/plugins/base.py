@@ -45,6 +45,7 @@ class Plugin_base(object):
                     bdir = self.conf.build_dir
             self.conf.build_dir = bdir
         self.io.put("#{GREEN}Build directory: #{NONE}" + self.conf.build_dir)
+        return True
     
     def create_builddir(self):
         """Creates conf.build_dir and returns True if doesn't exist,
