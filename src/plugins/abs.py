@@ -92,6 +92,7 @@ class Plugin_abs(BasicABS):
         """Find PKGBUILDs in ABS file tree and show them."""
         # TODO [ 22:26 - 28.03.2008 ] 
         # faster searching
+        self.io.put("#{RED}TODO#{NONE} - searching takes too much time!")
         for root, dirs, files in os.walk(self.conf.abs_path):
             for d in dirs:
                 if pkgname in d:

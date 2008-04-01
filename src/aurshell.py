@@ -36,7 +36,7 @@ if __name__ == '__main__':
     # only if arguments were given
     if len(sys.argv) > 1:
         aurshell = shell.Shell(conf)
-        aurshell.default(" ".join(sys.argv[1:]))
+        aurshell.onecmd(" ".join(sys.argv[1:]))
         sys.exit()
     else:
     # run shell
