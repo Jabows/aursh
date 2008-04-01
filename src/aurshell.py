@@ -27,9 +27,6 @@ from shell import shell
 import conf
 
 
-def signal_handler(sig, frame):
-    pass
-
 
 if __name__ == '__main__':
     # run in single command mode

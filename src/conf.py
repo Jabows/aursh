@@ -49,9 +49,6 @@ cmd_separator = ";"
 # where {cmd_separator} is ; by default
 arguments_pipe = "<<"
 
-# AUR url
-aur_url = "http://aur.archlinux.com"
-
 # ABS path
 abs_path = "/var/abs"
 
