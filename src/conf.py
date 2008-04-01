@@ -17,6 +17,7 @@ alias = {
     "edit"      : "base edit",
     "copy"      : "base copy",
     "builddir"  : "base builddir",
+    "aur install" : "aur info | aur download | base makepkg | base install << "
 }
 
 
@@ -42,7 +43,7 @@ compile_cmd = "makepkg -f "
 editor = 'vim'
 
 # separator for single line commands
-cmd_separator = ";"
+cmd_separator = "|"
 
 # send list of arguments to many commands
 # abs search {cmd_separator} aur search << vim xorg

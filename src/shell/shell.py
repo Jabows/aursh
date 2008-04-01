@@ -167,6 +167,7 @@ class Shell(cmd.Cmd):
 
     def default(self, cmd, *ignore):
         """When commad was given"""
+        cmd = self.replace_alias(cmd)
         self.run_command(cmd)
 
     def completenames(self, text, *ignored):
