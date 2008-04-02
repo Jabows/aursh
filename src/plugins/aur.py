@@ -19,6 +19,7 @@
 # USA.
 
 import urllib
+import urllib2
 import os
 
 try:
@@ -117,6 +118,7 @@ class Plugin_aur(object):
             self.io.put("#{GREEN}Downloading 1 file:#{NONE}")
         else:
             self.io.put("#{GREEN}Downloading %d files:#{NONE}" % len(link_list))
+        # download files
         for numb, filename in enumerate(link_list):
             to_download = '/'.join((url, filename))
             self.io.put("  #{BLUE}%3d#{NONE} |  #{BOLD}%s#{NONE}" % (numb + 1, filename))
