@@ -187,17 +187,21 @@ class Shell(cmd.Cmd):
     def completedefault(self, text, line, begidx, endidx):
         """Complete commands argument"""
         dotext = self.method_prefix + text
-        line = line.split()
+        line_list = line.split()
         # if only commands was given
-        if len(line) == 1:
-            cmds = [a[3:] + " " for a in dir(self.commands[line[0]]) \
+        if len(line_list) == 1:
+            cmds = [a[3:] + " " for a in dir(self.commands[line_list[0]]) \
                     if a.startswith(dotext)]
-        elif len(line) == 2:
-            cmds = [a[3:] + " " for a in dir(self.commands[line[0]]) \
+        # second word completition
+        elif len(line_list) == 2 and not line[-1] == " ":
+            cmds = [a[3:] + " " for a in dir(self.commands[line_list[0]]) \
                     if a.startswith(dotext)]
-        # else don't complete (or should I?)
         else:
-            cmds = []
+            try:
+                cmds = getattr(self.commands[line_list[0]],
+                        "complete")(line)
+            except AttributeError:
+                cmds = []
         return cmds
 
     def get_help(self, arg):

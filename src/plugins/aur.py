@@ -19,7 +19,6 @@
 # USA.
 
 import urllib
-import urllib2
 import os
 
 try:
@@ -48,10 +47,20 @@ class Plugin_aur(object):
     def __init__(self, io, conf):
         self.io = io
         self.conf = conf
+        self.pkg_list = []
         self.url_files = "http://aur.archlinux.org/packages/"
         self.url_info = "http://aur.archlinux.org/rpc.php?type=info&arg="
         self.url_search = "http://aur.archlinux.org/rpc.php?type=search&arg="
         self.url_id = "http://aur.archlinux.org/packages.php?ID="
+
+
+    def complete(self, text):
+        if text.endswith(" "):
+            return []
+        text = text.split()
+        # TODO [ 16:55 - 02.04.2008 ] 
+        # fix '-' in name completition bug
+        return [name for name in self.pkg_list if name.startswith(text[-1])]
 
     def search_with_json(self, url):
         """Returns converted JSON object from given url"""
@@ -75,6 +84,8 @@ class Plugin_aur(object):
             return False
         else:
             for numb, pkg in enumerate(result):
+                # add package name to memmory
+                self.pkg_list.append(pkg['Name'])
                 self.io.put(" #{BLUE}%3d#{NONE}  %s" % (numb+1, pkg['Name']))
         return True
 
