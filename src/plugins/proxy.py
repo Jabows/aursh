@@ -72,3 +72,5 @@ class Plugin_proxy(object):
     def do_drop(self, *ignore):
         """Drop all proxy settings for current session"""
         self.proxy = {}
+        self.set_proxy()
+        return True
