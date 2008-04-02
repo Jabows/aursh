@@ -55,7 +55,11 @@ class Plugin_aur(object):
 
     def search_with_json(self, url):
         """Returns converted JSON object from given url"""
-        json_obj = urllib.urlopen(url).read()
+        try:
+            json_obj = urllib.urlopen(url).read()
+        except IOError:
+            self.io.put("#{RED}PROXY error?#{NONE}")
+            return False
         result = json.loads(json_obj)
         if result['results'] == u'No results found' or \
                 result['results'] == u'No result found':
@@ -96,7 +100,11 @@ class Plugin_aur(object):
         # download from CVS
         def list_all_links(url):
             """Get all the links from page"""
-            www = urllib.urlopen(url)
+            try:
+                www = urllib.urlopen(url)
+            except IOError:
+                self.io.put("#{RED}PROXY error?#{NONE}")
+                return False
             parser = URLLister()
             parser.feed(www.read())
             parser.close()

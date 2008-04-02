@@ -33,6 +33,9 @@ class Plugin_proxy(object):
         self.io = io
         self.set_proxy()
 
+    def __call__(self):
+        self.do_show()
+
     def set_proxy(self):
         """Set the proxy"""
         # TODO [ 11:21 - 02.04.2008 ] 
