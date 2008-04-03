@@ -88,6 +88,10 @@ class Plugin_abs(BasicABS):
         self.io = io
         self.conf = conf
 
+    def complete(self, text_line):
+        """Complete package names"""
+        return []
+
     def do_search(self, pkgname, *ignore):
         """Find PKGBUILDs in ABS file tree and show them."""
         # TODO [ 22:26 - 28.03.2008 ] 

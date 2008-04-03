@@ -56,7 +56,7 @@ class Plugin_aur(object):
 
     def complete(self, text):
         if text.endswith(" "):
-            return []
+            return self.pkg_list
         text = text.split()
         # TODO [ 16:55 - 02.04.2008 ] 
         # fix '-' in name completition bug
