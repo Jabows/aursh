@@ -49,8 +49,7 @@ class Plugin_aur(object):
         self.conf = conf
         self.pkg_list = []
         self.url_files = "http://aur.archlinux.org/packages/"
-        self.url_info = "http://aur.archlinux.org/rpc.php?type=info&arg="
-        self.url_search = "http://aur.archlinux.org/rpc.php?type=search&arg="
+        self.url_json = "http://aur.archlinux.org/rpc.php"
         self.url_id = "http://aur.archlinux.org/packages.php?ID="
 
 
@@ -62,25 +61,27 @@ class Plugin_aur(object):
         # fix '-' in name completition bug
         return [name for name in self.pkg_list if name.startswith(text[-1])]
 
-    def search_with_json(self, url):
+    def search_with_json(self, stype, *args):
         """Returns converted JSON object from given url"""
+        url_args = "&arg=" + "&arg=".join(args)
+        url_type = "?type=" + stype
+        url = self.url_json + url_type + url_args
         try:
             json_obj = urllib.urlopen(url).read()
         except IOError:
             self.io.put("#{RED}PROXY error?#{NONE}")
             return False
         result = json.loads(json_obj)
-        if result['results'] == u'No results found' or \
-                result['results'] == u'No result found':
+        if result['type'] == "error":
+            self.io.put("#{BOLD}AUR :#{NONE} %s" % result['results'])
             return None
         return result['results']
 
 
-    def do_search(self, pkgname, *ignore):
+    def do_search(self, *pkgnames):
         """Search package in AUR"""
-        result = self.search_with_json(self.url_search + pkgname)
+        result = self.search_with_json("search", *pkgnames)
         if not result:
-            self.io.put("No package found")
             return False
         else:
             for numb, pkg in enumerate(result):
@@ -89,21 +90,34 @@ class Plugin_aur(object):
                 self.io.put(" #{BLUE}%3d#{NONE}  %s" % (numb+1, pkg['Name']))
         return True
 
-    def do_info(self, pkgname, *ignore):
+    def single_pkg_info(self, pkgname, *ignore):
         """Show more info about package"""
-        result = self.search_with_json(self.url_info + pkgname)
+        result = self.search_with_json("info", pkgname)
         if not result:
-            self.io.put("No such package in AUR")
             return False
         else:
+            self.io.put("#{BLUE}%s#{blue} : %s#{NONE}" % \
+                    ("Name".rjust(18), result["Name"]))
             for key in result:
-                if not key in ["ID", "Name"]:
+                if not key in ["ID", "Name", "URLPath"] and result[key]:
                     self.io.put("#{GREEN}%s#{NONE} : %s" % \
                             (key.rjust(18), result[key]))
             self.io.put("       #{GREEN}Link to AUR#{NONE} : %s" % \
                     self.url_id + result['ID'])
         return True
-
+    
+    def do_info(self, *pkgnames):
+        """Like `search`, but show more info"""
+        pkgs = self.search_with_json("search", *pkgnames)
+        if not pkgs:
+            return False
+        elif len(pkgs) > 10:
+            self.io.put("#{RED}Too many packages. I'll show only first 10.#{BOLD}")
+            pkgs = pkgs[:10]
+        for pkg in pkgs:
+            self.single_pkg_info(pkg['Name'])
+            self.io.put("")
+        return True
 
     def do_download(self, pkgname, *ignore):
         """Download files from AUR"""
