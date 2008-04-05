@@ -66,14 +66,22 @@ class Plugin_aur(object):
         """Connect to AUR and print PKGBUILD"""
         url = self.url_files + pkgname + "/" + pkgname + "/PKGBUILD"
         try:
-            pkgbuild = urllib.urlopen(url).read()
+            pkgbuild = urllib.urlopen(url)
         except IOError:
             self.io.put("#{RED}PROXY error?#{NONE}")
             return False
-        if pkgbuild.startswith("<?xml version="):
-            self.io.put("No PKGBUILD found")
-            return False
-        self.io.put(pkgbuild)
+        for line in pkgbuild:
+            if line.startswith("<?xml version="):
+                self.io.put("No PKGBUILD found")
+                return False
+            elif line.startswith("#"):
+                self.io.put("  #{GRAY}%s" % line, newline=False)
+            elif "=" in line:
+                l, r = line.split("=", 1)
+                self.io.put("  #{blue}%s#{NONE}=%s" % (l, r),
+                        newline=False)
+            elif line.strip():
+                self.io.put("  #{gray}%s#{none}" % line, newline=False)
         return True
 
     def search_with_json(self, stype, *args):
@@ -91,7 +99,6 @@ class Plugin_aur(object):
             self.io.put("#{BOLD}AUR :#{NONE} %s" % result['results'])
             return None
         return result['results']
-
 
     def do_search(self, *pkgnames):
         """Search package in AUR"""

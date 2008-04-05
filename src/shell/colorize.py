@@ -93,3 +93,10 @@ class ColorsTemplate(dict):
     def keys(self):
         return [self.template % c for c in self._colors.keys()]
 
+
+
+if __name__ == "__main__":
+    ct = ColorsTemplate()
+    for c in ct._colors:
+        print ct._colors['NONE'], ct._colors[c], c ,
+
