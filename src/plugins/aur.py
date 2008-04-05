@@ -54,12 +54,27 @@ class Plugin_aur(object):
 
 
     def complete(self, text):
+        """Complete package name"""
         if text.endswith(" "):
             return self.pkg_list
         text = text.split()
         # TODO [ 16:55 - 02.04.2008 ] 
         # fix '-' in name completition bug
         return [name for name in self.pkg_list if name.startswith(text[-1])]
+
+    def do_show_pkgbuild(self, pkgname, *ignore):
+        """Connect to AUR and print PKGBUILD"""
+        url = self.url_files + pkgname + "/" + pkgname + "/PKGBUILD"
+        try:
+            pkgbuild = urllib.urlopen(url).read()
+        except IOError:
+            self.io.put("#{RED}PROXY error?#{NONE}")
+            return False
+        if pkgbuild.startswith("<?xml version="):
+            self.io.put("No PKGBUILD found")
+            return False
+        self.io.put(pkgbuild)
+        return True
 
     def search_with_json(self, stype, *args):
         """Returns converted JSON object from given url"""
@@ -111,9 +126,12 @@ class Plugin_aur(object):
         pkgs = self.search_with_json("search", *pkgnames)
         if not pkgs:
             return False
-        elif len(pkgs) > 10:
-            self.io.put("#{RED}Too many packages. I'll show only first 10.#{BOLD}")
-            pkgs = pkgs[:10]
+        pkgs_len = len(pkgs)
+        show_numb = 6
+        if pkgs_len > show_numb:
+            self.io.put("#{YELLOW}%d packages found, but I'll show only %d.#{NONE}" %\
+                (pkgs_len, show_numb))
+            pkgs = pkgs[:show_numb]
         for pkg in pkgs:
             self.single_pkg_info(pkg['Name'])
             self.io.put("")
