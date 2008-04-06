@@ -70,18 +70,21 @@ class Plugin_aur(object):
         except IOError:
             self.io.put("#{RED}PROXY error?#{NONE}")
             return False
-        for line in pkgbuild:
+        for number, line in enumerate(pkgbuild):
             if line.startswith("<?xml version="):
                 self.io.put("No PKGBUILD found")
                 return False
-            elif line.startswith("#"):
-                self.io.put("  #{GRAY}%s" % line, newline=False)
+            # show line number
+            self.io.put("#{_BLUE}#{WHITE}  %2d #{NONE} " % (number + 1),
+                    newline=False)
+            if line.startswith("#"):
+                self.io.put("#{GRAY}%s" % line, newline=False)
             elif "=" in line:
                 l, r = line.split("=", 1)
-                self.io.put("  #{blue}%s#{NONE}=%s" % (l, r),
+                self.io.put("#{blue}%s#{NONE}=%s" % (l, r),
                         newline=False)
-            elif line.strip():
-                self.io.put("  #{gray}%s#{none}" % line, newline=False)
+            else:
+                self.io.put("#{gray}%s#{none}" % line, newline=False)
         return True
 
     def search_with_json(self, stype, *args):

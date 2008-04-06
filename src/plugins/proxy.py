@@ -60,11 +60,19 @@ class Plugin_proxy(object):
                         (key.rjust(6), self.proxy[key]))
         return True
 
-    def do_set(self, proxy_type, proxy_addr, *ignore):
+    def do_set(self, proxy_type, proxy_addr=None, *ignore):
         """Set proxy for current session. 
         set  <proxy type>  <proxy addr>
         set http http://some.proxy.com:8080
         """
+        if proxy_addr == None:
+            self.io.put("""#{BLUE}Usage : #{NONE}
+            proxy  <protocol>  <address>
+            proxy  http  http://my.secret.proxy:8081""")
+            return False
+        if not proxy_addr.startswith("http://"):
+            self.io.put("Bad proxy address.")
+            return False
         self.proxy[proxy_type] = proxy_addr
         self.set_proxy()
         return True

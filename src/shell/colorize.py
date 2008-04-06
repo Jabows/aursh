@@ -79,6 +79,10 @@ class ColorsTemplate(dict):
                 "LIGHTCYAN"     : "\033[1;36m",
                 "white"         : "\033[0;37m",
                 "WHITE"         : "\033[1;37m",
+                "_BLACK"        : "\033[0;40m",
+                "_RED"          : "\033[0;41m",
+                "_GREEN"        : "\033[0;42m",
+                "_BLUE"         : "\033[0;44m",
             }
         self._colors.update(colors)
     
