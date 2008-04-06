@@ -42,6 +42,9 @@ class Shell(cmd.Cmd):
     To use it, write some modules, becouse by default it's very poor shell.
     """
     def __init__(self, configuration):
+        self.reload(configuration)
+
+    def reload(self, configuration):
         cmd.Cmd.__init__(self)
         self.conf = configuration
         # use this instead of plain `print`
@@ -60,7 +63,10 @@ class Shell(cmd.Cmd):
         # create build_dir if doesn't exist
         if not os.path.isdir(self.conf.build_dir):
             os.mkdir(self.conf.build_dir)
-    
+
+    def do_reload(self, *ignore):
+        self.reload(self.conf)
+
     def load_history(self, hfile, hlength):
         """load history, create empty file if history doesn't exist"""
         if not os.path.isfile(hfile):
