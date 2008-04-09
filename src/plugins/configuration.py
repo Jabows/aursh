@@ -67,8 +67,9 @@ class Plugin_conf(object):
 
         #{BOLD}conf set  <name>  <value>#{NONE}
         """
-        if len(values) < 2:
+        if len(values) < 1:
             self.io.put(self.do_set.__doc__)
             return False
         setattr(self.conf, name, " ".join(values))
         self.do_show(name)
+        

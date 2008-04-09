@@ -50,21 +50,27 @@ cmd_separator = ";"
 # where {cmd_separator} is ; by default
 arguments_pipe = "<<"
 
+# paint with given color, or set to '' if don't want to 
+# aur_mark_searchword = ''
+aur_mark_searchword = 'RED'
+
 # proxy settings
 proxy = {
     #"http"  : "http://username:password@proxy.address.com:port" ,
     #"ftp"   : "http://username:password@proxy.address.com:port" ,
+    #"git"   : "http://username:password@proxy.address.com:port" ,
+    # ?
         }
 
 # ABS path
 abs_path = "/var/abs"
 
 # shell prompt
-shell_prompt = "#{BOLD} aurshell #{BLUE}> #{NONE}"
+shell_prompt = "#{BOLD} aurshell #{BLUE}# #{NONE}"
 
 # hello message
 shell_intro = """
-            #{WHITE} Welcome to #{BLUE} aurshell #{WHITE}[testing]#{NONE}
+                 #{WHITE} Welcome to #{BLUE} aurshell#{WHITE}.#{NONE}
 
         Press #{BOLD}<TAB>#{NONE} twice, to list all commands.
   Type #{BOLD}help <command>#{NONE} to show help for given command.
