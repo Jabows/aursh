@@ -18,6 +18,15 @@ alias = {
     "copy"      : "base copy",
     "builddir"  : "base builddir",
     "aur install" : "aur info ; aur download ; base makepkg ; base install << "
+    # Pacman-like commands
+    "-Ss"       : "aur search",
+    "Ss"        : "aur search",
+    "-S"        : "aur download ; base makepkg ; base install << ",
+    "S"         : "aur download ; base makepkg ; base install << ",
+    "-Si"       : "aur info ",
+    "Si"        : "aur info ",
+    "-Sw"       : "aur download ",
+    "Sw"        : "aur download ",
 }
 
 
