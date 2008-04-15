@@ -122,6 +122,8 @@ class Plugin_find(object):
         self.io = io
 
     def do_file(self, filename, *ignore):
+        if filename.startswith("/"):
+            filename = filename[1:]
         g_links = google_search((filename,))
         for link in g_links:
             result = archlinux_files_list(link)
