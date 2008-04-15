@@ -60,7 +60,11 @@ class Plugin_aur(object):
         text = text.split()
         # TODO [ 16:55 - 02.04.2008 ] 
         # fix '-' in name completition bug
-        return [name for name in self.pkg_list if name.startswith(text[-1])]
+        if len(text[-1]) < 3:
+            return [name for name in self.pkg_list if name.startswith(text[-1])]
+        else:
+            pkg_list = self.search_with_json("search", text[-1])
+            return [p['Name'] for p in pkg_list]
 
     def do_show_pkgbuild(self, pkgname, *ignore):
         """Connect to AUR and print PKGBUILD"""
@@ -105,6 +109,8 @@ class Plugin_aur(object):
 
     def do_search(self, *pkgnames):
         """Search package in AUR"""
+        if not pkgnames:
+            return False
         result = self.search_with_json("search", *pkgnames)
         if not result:
             return False
