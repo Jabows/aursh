@@ -17,7 +17,7 @@ alias = {
     "edit"      : "base edit",
     "copy"      : "base copy",
     "builddir"  : "base builddir",
-    "aur install" : "aur info ; aur download ; base makepkg ; base install << "
+    "aur install" : "aur info ; aur download ; base makepkg ; base install << ",
     # Pacman-like commands
     "-Ss"       : "aur search",
     "Ss"        : "aur search",
@@ -76,6 +76,10 @@ abs_path = "/var/abs"
 
 # shell prompt
 shell_prompt = "#{BOLD} aurshell #{BLUE}# #{NONE}"
+
+# how to download web page (urllib doesn't work with google)
+# user lynx, links, w3m or something similar
+page_downloader = "lynx -dump "
 
 # hello message
 shell_intro = """
