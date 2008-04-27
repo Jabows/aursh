@@ -121,6 +121,7 @@ class Plugin_find(object):
         self.conf = conf
         self.io = io
 
+
     def do_file(self, filename, *ignore):
         if filename.startswith("/"):
             filename = filename[1:]
@@ -133,3 +134,4 @@ class Plugin_find(object):
                     self.io.put("    %s" % file.replace(
                         filename, "#{red}%s#{NONE}" % filename))
 
+    __call__ = do_file

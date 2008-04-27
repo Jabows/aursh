@@ -78,7 +78,7 @@ abs_path = "/var/abs"
 shell_prompt = "#{BOLD} aurshell #{BLUE}# #{NONE}"
 
 # how to download web page (urllib doesn't work with google)
-# user lynx, links, w3m or something similar
+# use lynx, links, w3m or something similar
 page_downloader = "lynx -dump "
 
 # hello message
