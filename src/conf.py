@@ -27,6 +27,7 @@ alias = {
     "Si"        : "aur info ",
     "-Sw"       : "aur download ",
     "Sw"        : "aur download ",
+    "Su"        : "aur upgrade",
 }
 
 
