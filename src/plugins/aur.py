@@ -4,7 +4,7 @@
 # aur.py
 #
 # Copyright (C) 2008 by Piotr Husiatyński <phusiatynski@gmail.com>
-# 
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
@@ -58,7 +58,7 @@ class Plugin_aur(object):
         if text.endswith(" "):
             return self.pkg_list
         text = text.split()
-        # TODO [ 16:55 - 02.04.2008 ] 
+        # TODO [ 16:55 - 02.04.2008 ]
         # fix '-' in name completition bug
         if len(text[-1]) < 3:
             return [name for name in self.pkg_list if name.startswith(text[-1])]
@@ -103,7 +103,7 @@ class Plugin_aur(object):
             return False
         result = json.loads(json_obj)
         if result['type'] == "error":
-            self.io.put("#{BOLD}AUR :#{NONE} %s" % result['results'])
+            #self.io.put("#{BOLD}AUR :#{NONE} %s" % result['results'])
             return None
         return result['results']
 
@@ -141,7 +141,7 @@ class Plugin_aur(object):
             self.io.put("       #{GREEN}Link to AUR#{NONE} : %s" % \
                     self.url_id + result['ID'])
         return True
-    
+
     def do_info(self, *pkgnames):
         """Like `search`, but show more info"""
         pkgs = self.search_with_json("search", *pkgnames)
@@ -160,7 +160,7 @@ class Plugin_aur(object):
 
     def do_download(self, pkgname, *ignore):
         """Download files from AUR"""
-        # TODO [ 20:39 - 01.04.2008 ] 
+        # TODO [ 20:39 - 01.04.2008 ]
         # download from CVS
         def list_all_links(url):
             """Get all the links from page"""
@@ -204,3 +204,18 @@ class Plugin_aur(object):
             return False
         self.io.put("Voting on +\nTODO")
         return True
+
+    def do_upgrade(self, *ignore):
+        for pkg in os.popen("pacman -Qm"):
+            pkg_name, pkg_ver = pkg.split()
+            aur_list = self.search_with_json('info', pkg_name)
+            try:
+                aur_pkg_ver = aur_list['Version']
+                if aur_pkg_ver and pkg_ver != aur_pkg_ver:
+                    self.io.put('%s %s - #{blue}%s#{NONE}' % \
+                            (pkg_name.ljust(20), pkg_ver.rjust(14), aur_pkg_ver))
+            except (TypeError, KeyError):
+                pass
+
+
+
