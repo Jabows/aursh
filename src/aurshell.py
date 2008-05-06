@@ -26,7 +26,12 @@ import os
 from shell import shell
 import conf
 
-
+def run_shell():
+    try:
+        aursh = shell.Shell(conf)
+        aursh.cmdloop()
+    except (KeyboardInterrupt):
+        run_shell()
 
 if __name__ == '__main__':
     # run in single command mode
@@ -37,11 +42,4 @@ if __name__ == '__main__':
         sys.exit()
     else:
     # run shell
-        try:
-            aursh = shell.Shell(conf)
-            aursh.cmdloop()
-        except KeyboardInterrupt:
-            # TODO [ 23:18 - 15.03.2008 ] 
-            # C^c shouldn't quit shell
-            pass
-    
+        run_shell()
