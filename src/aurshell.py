@@ -31,6 +31,9 @@ def run_shell():
         aursh = shell.Shell(conf)
         aursh.cmdloop()
     except (KeyboardInterrupt):
+        if not aursh.lastcmd:
+            aursh.io.newline()
+            sys.exit(0)
         run_shell()
 
 if __name__ == '__main__':

@@ -45,6 +45,9 @@ class InOut(object):
             msg_out = msg_out + " \n"
         self.stdout.write(msg_out)
 
+    def newline(self):
+        self.stdout.write("\n")
+
     def get(self, message=None, newline=False):
         """Read from input"""
         if message:
