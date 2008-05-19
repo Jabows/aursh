@@ -11,13 +11,13 @@ import os
 
 
 alias = {
-    "compile"   : "base makepkg",
-    "makepkg"   : "base makepkg",
-    "install"   : "base install",
-    "edit"      : "base edit",
-    "copy"      : "base copy",
-    "builddir"  : "base builddir",
-    "aur install" : "aur info ; aur download ; base makepkg ; base install << ",
+    "compile"       : "base makepkg",
+    "makepkg"       : "base makepkg",
+    "install"       : "base install",
+    "edit"          : "base edit",
+    "copy"          : "base copy",
+    "builddir"      : "base builddir",
+    "aur install"   : "aur info ; aur download ; base makepkg ; base install << ",
     # Pacman-like commands
     "-Ss"       : "aur search",
     "Ss"        : "aur search",
@@ -27,6 +27,7 @@ alias = {
     "Si"        : "aur info ",
     "-Sw"       : "aur download ",
     "Sw"        : "aur download ",
+    "-Su"       : "aur upgrade",
     "Su"        : "aur upgrade",
 }
 
