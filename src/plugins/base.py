@@ -136,6 +136,30 @@ class Plugin_base(object):
         os.system("cd %s && %s %s" % (dir, self.conf.install_cmd, pkgfile))
         return True
 
+    def do_validate(self, pkgname, *ignore):
+        """Validate PKGBUILD. Edit it if not correct"""
+        # arch=
+        pkg_file_path = os.path.join(self.compilepath(pkgname), "PKGBUILD")
+        if not os.path.isfile(pkg_file_path):
+            self.io.put("No file found")
+            return False
+        validator = (
+                [re.compile(r'^arch=(.*)'),  "No arch=() info"],
+                )
+        for line in open(pkg_file_path, "r"):
+            for v in validator:
+                if v[0].match(line):
+                    # set second value to None (no info)
+                    v[1] = None
+        run_edit = False
+        for v in validator:
+            if v[1]:
+                run_edit = True
+                self.io.put("#{YELLOW}VALIDATE ERROR: #{NONE}%s#{NONE}" % v[1])
+        if run_edit:
+            self.io.get()
+            self.do_edit(pkgname)
+        return True
 
     def do_edit(self, pkgname, file="PKGBUILD", *ignore):
         """Edit file with conf.edior.
