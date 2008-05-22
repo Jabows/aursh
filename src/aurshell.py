@@ -31,6 +31,8 @@ def run_shell():
         aursh = shell.Shell(conf)
         aursh.cmdloop()
     except (KeyboardInterrupt):
+        # TODO [ 00:22 - 23.05.2008 ] 
+        # doesn't work good
         if not aursh.lastcmd:
             aursh.io.newline()
             sys.exit(0)
