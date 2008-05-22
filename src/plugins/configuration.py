@@ -72,4 +72,3 @@ class Plugin_conf(object):
             return False
         setattr(self.conf, name, " ".join(values))
         self.do_show(name)
-        

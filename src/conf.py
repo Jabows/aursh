@@ -80,7 +80,7 @@ class Configuration(object):
         return getattr(self, name)
 
     def __setattr__(self, name, value):
-        if not name in self.__dict__:
+        if not name in dir(self):
             raise AttributeError("%s object has no attribute '%s'" % \
                     (self.__class__.__name__, name))
         #setattr(self, attr_name, value)
