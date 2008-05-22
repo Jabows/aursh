@@ -49,7 +49,7 @@ class BasicABS(object):
 
     def compilepath(self, pkgname):
         """Return pakgname path (don't have to exist)."""
-        return os.path.join(self.conf.build_dir, pkgname)
+        return os.path.join(os.path.expanduser(self.conf.build_dir), pkgname)
 
     def check_compilepath(self, pkgname):
         """Return path to pakgname in builddir or None if doesn't exit"""
@@ -68,7 +68,7 @@ class BasicABS(object):
     def copy(self, path_from, path_to=None):
         """Copy `path` do conf.build_dir"""
         if not path_to:
-            path_to = self.conf.build_dir
+            path_to = os.path.expanduser(self.conf.build_dir)
             dir, pkgname = os.path.split(path_from)
             path_to = os.path.join(path_to, pkgname)
         if os.path.isdir(path_to):

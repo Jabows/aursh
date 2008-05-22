@@ -180,7 +180,7 @@ class Plugin_aur(object):
         if link_list == []:
             self.io.put("No files found.")
             return False
-        pkgdir = os.path.join(self.conf.build_dir, pkgname)
+        pkgdir = os.path.join(os.path.expanduser(self.conf.build_dir), pkgname)
         if not os.path.isdir(pkgdir):
             os.mkdir(pkgdir)
         elif not self.io.ask('Files allready exists. Rewrite?'):

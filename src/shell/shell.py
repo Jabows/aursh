@@ -49,7 +49,7 @@ class Shell(cmd.Cmd):
         self.conf = configuration
         # use this instead of plain `print`
         self.io = InOut()
-        self.io.colorize.colors.mono = not self.conf.use_colors
+        self.io.colorize.colors.mono = not self.conf.use_colors == "True"
         # load as plugins all class that name stasts with class_prefix
         self.class_prefix = "Plugin_"
         # use all methods that name stasts with method_prefix
@@ -59,10 +59,11 @@ class Shell(cmd.Cmd):
         # load plugins
         self.commands = self.load_plugins(self.conf.plugins_path)
         # load history
-        self.load_history(self.conf.history_file, self.conf.history_length)
+        self.load_history(os.path.expanduser(self.conf.history_file),
+                int(self.conf.history_length))
         # create build_dir if doesn't exist
-        if not os.path.isdir(self.conf.build_dir):
-            os.mkdir(self.conf.build_dir)
+        if not os.path.isdir(os.path.expanduser(self.conf.build_dir)):
+            os.mkdir(os.path.expanduser(self.conf.build_dir))
 
     def do_reload(self, *ignore):
         self.reload(self.conf)
@@ -254,7 +255,7 @@ class Shell(cmd.Cmd):
         # better history listing 
         # print history
         if not hnumb:
-            for n in range(1, self.conf.history_length):
+            for n in range(1, int(self.conf.history_length)):
                 cmd = readline.get_history_item(n)
                 if not cmd:
                     break
@@ -265,7 +266,7 @@ class Shell(cmd.Cmd):
                 if "-" in hnumb:
                     if hnumb[-1] == "-" or hnumb[0] == "-":
                         start = int(hnumb.replace("-", " "))
-                        end = self.conf.history_length
+                        end = int(self.conf.history_length)
                     else:
                         start, end = hnumb.split("-")
                         start = int(start)
@@ -291,8 +292,8 @@ class Shell(cmd.Cmd):
 
     def do_quit(self, *ignored):
         """Quit from shell"""
-        if self.conf.history_length:
-            readline.write_history_file(self.conf.history_file)
+        if int(self.conf.history_length):
+            readline.write_history_file(os.path.expanduser(self.conf.history_file))
         self.io.put('#{BLUE}quit..#{NONE}')
         sys.exit(1)
     

@@ -51,14 +51,14 @@ class Plugin_base(object):
         """Creates conf.build_dir and returns True if doesn't exist,
         else returns False and do nothing
         """
-        if not os.path.isdir(self.conf.build_dir):
-            os.mkdir(self.conf.build_dir)
+        if not os.path.isdir(os.path.expanduser(self.conf.build_dir)):
+            os.mkdir(os.path.expanduser(self.conf.build_dir))
             return True
         return False
 
     def compilepath(self, pkgname):
         """Return pakgname path (don't have to exist)."""
-        return os.path.join(self.conf.build_dir, pkgname)
+        return os.path.join(os.path.expanduser(self.conf.build_dir), pkgname)
 
     def check_compilepath(self, pkgname):
         """Return path to pakgname in builddir or None if doesn't exit"""
@@ -77,7 +77,7 @@ class Plugin_base(object):
     def do_copy(self, path_from, path_to=None, *ignore):
         """Copy given dir do conf.build_dir"""
         if not path_to:
-            path_to = self.conf.build_dir
+            path_to = os.path.expanduser(self.conf.build_dir)
             dir, pkgname = os.path.split(path_from)
             path_to = os.path.join(path_to, pkgname)
         if not os.path.isdir(path_from):
@@ -97,7 +97,7 @@ class Plugin_base(object):
         dir = self.check_pkgbuild(pkgname)
         if not dir:
             self.io.put("Path  #{BOLD}%s/%s#{NONE}  does not exist." % \
-                    (self.conf.build_dir, pkgname))
+                    (os.path.expanduser(self.conf.build_dir), pkgname))
             return False
         os.system("cd %s && %s" % (dir, self.conf.compile_cmd))
         return True
@@ -107,7 +107,7 @@ class Plugin_base(object):
         dir = self.check_compilepath(pkgname)
         if not dir:
             self.io.put("Path #{blue}%s/#{BOLD}%s#{NONE} does not exist." % \
-                    (self.conf.build_dir, pkgname))
+                    (os.path.expanduser(self.conf.build_dir), pkgname))
             return False
         # list all pkg.tar.gz files
         pkglist = []
