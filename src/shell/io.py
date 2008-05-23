@@ -55,18 +55,28 @@ class InOut(object):
         return self.stdin.readline()
 
     def ask(self, question, good='y', bad='n', newline=False):
-        """Ask question and return True or False"""
-        answer = '[#{BOLD}%s#{none}/%s]' % (good.capitalize(), bad.lower())
-        q = "%s %s " % (question, answer)
-        self.put(q, newline)
-        a = self.stdin.readline().strip()
-        a = a.lower()
-        if a == good.lower():
+        """Ask question and return True or False."""
+        # get default answer
+        if good.isupper():
+            default = True
+            bad = bad.lower()
+            answer = "[#{BOLD}%s#{NONE}/%s] " % (good, bad)
+        else:
+            default = False
+            bad = bad.upper()
+            good = good.lower()
+            answer = "[%s/#{BOLD}%s#{NONE}] " % (good, bad)
+        # print the question
+        self.put(question + answer, newline)
+        # get the answer
+        ans = self.stdin.readline().strip().lower()
+        if ans == good.lower():
             return True
-        elif a == bad.lower():
+        elif ans == bad.lower():
             return False
-        elif not a:
-            self.put("Type #{BOLD}%s#{NONE} or #{BOLD}%s#{NONE}" % \
-                    (good, bad))
-            return self.ask(question, good, bad, newline)
+        # return default value
+        return default
+        #self.put("Type #{BOLD}%s#{NONE} or #{BOLD}%s#{NONE}" % \
+        #        (good, bad))
+        #return self.ask(question, good, bad, newline)
 
