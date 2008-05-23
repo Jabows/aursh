@@ -26,6 +26,12 @@ import os
 from shell import shell
 import conf
 
+# root not allowed!
+if os.getuid() == 0:
+    print("""Sorry, root can't run this script.
+Use sudo if you want to install stuff""")
+    sys.exit(0)
+
 def run_shell():
     try:
         aursh = shell.Shell(conf)
