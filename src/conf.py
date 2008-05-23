@@ -6,24 +6,52 @@ Configuration file.
 """
 import os
 import sys
-import ConfigParser
 
+
+class ConfFileParser(object):
+    """Configuration file parser, similar to those in ConfigParser"""
+    def __init__(self, file_dir=None):
+        self.configuration = {}
+        if file_dir:
+            self.read(file_dir)
+
+    def read(self, file_dir):
+        """Read/parse configuration file"""
+        self.configuration = {}
+        # default name for section
+        section = 'none'
+        for (line_numb, line) in enumerate(open(file_dir, "r")):
+            line = line.strip()
+            # enter new section
+            if line.startswith("[") and line.endswith("]"):
+                section = line[1:-1]
+                self.configuration[section] = {}
+            # comment, empty line
+            elif not line or line.startswith("#"):
+                continue
+            # new option
+            else:
+                try:
+                    name, value = line.split("=", 1)
+                    self.configuration[section][name.strip()] = value.strip()
+                except (ValueError):
+                    print("Configuration error: %3d : %s" % (line_numb, line))
+
+    def sections(self):
+        """Return list of sections"""
+        return self.configuration.keys()
+
+    def options(self, section):
+        """Return list of options from given section"""
+        return self.configuration[section]
+
+    def get(self, section, option):
+        """Return value of given option"""
+        return self.configuration[section][option]
 
 
 class Configuration(object):
-    alias = {
-        "compile"       : "base makepkg",
-        "makepkg"       : "base makepkg",
-        "install"       : "base install",
-        "edit"          : "base edit",
-        "copy"          : "base copy",
-        # Pacman-like commands
-        "-Ss"       : "aur search",
-        "-S"        : "aur download ; base validate ; base makepkg ; base install << ",
-        "-Si"       : "aur info ",
-        "-Sw"       : "aur download ",
-        "-Su"       : "aur upgrade",
-    }
+    alias = { }
     # use color output? [True/False]
     use_colors = True
     plugins_path = os.path.join(os.getcwd(), "plugins/")
@@ -40,27 +68,20 @@ class Configuration(object):
     # separator for single line commands
     cmd_separator = ";"
     # send list of arguments to many commands
-    # abs search {cmd_separator} aur search << vim xorg
-    # where {cmd_separator} is ; by default
     arguments_pipe = "<<"
     # paint with given color, or set to '' if don't want to 
-    # aur_mark_searchword = ''
     aur_mark_searchword = 'RED'
     # proxy settings
     proxy = {
         #"http"  : "http://username:password@proxy.address.com:port" ,
         #"ftp"   : "http://username:password@proxy.address.com:port" ,
-        #"git"   : "http://username:password@proxy.address.com:port" ,
-        # ?
             }
     # ABS path
     abs_path = "/var/abs"
     # shell prompt
     shell_prompt = "#{BOLD} aurshell #{BLUE}# #{NONE}"
     # how to download web page (urllib doesn't work with google)
-    # use lynx, links, w3m or something similar
     page_downloader = "lynx -dump "
-    # hello message
     shell_intro = """
                  #{WHITE} Welcome to #{BLUE} aurshell#{WHITE}.#{NONE}
 
@@ -69,9 +90,6 @@ class Configuration(object):
        Edit #{BOLD}src/conf.py#{NONE} file to change settings.
           Press #{BOLD}Ctrl + d#{NONE} of type #{BOLD}quit#{NONE} to quit.
 """
-
-
-
 
     def __getattr__(self, name):
         if not name in self.__dict__:
@@ -90,8 +108,7 @@ class Configuration(object):
         """load user configuration"""
         conf_file = os.path.expanduser("~/.aurshell")
         if os.path.isfile(conf_file):
-            config = ConfigParser.ConfigParser()
-            config.read(conf_file)
+            config = ConfFileParser(conf_file)
             if 'base' in config.sections():
                 for option in config.options('base'):
                     try:
