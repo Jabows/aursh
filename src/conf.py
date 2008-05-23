@@ -35,7 +35,7 @@ class ConfFileParser(object):
                     name, value = line.split("=", 1)
                     self.configuration[section][name.strip()] = value.strip()
                 except (ValueError):
-                    print("Configuration error: %3d : %s" % (line_numb, line))
+                    print("Configuration file error: %3d : %s" % (line_numb + 1, line))
 
     def sections(self):
         """Return list of sections"""
