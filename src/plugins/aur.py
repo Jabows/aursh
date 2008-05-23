@@ -184,7 +184,7 @@ class Plugin_aur(object):
         if not os.path.isdir(pkgdir):
             os.mkdir(pkgdir)
         elif not self.io.ask('Files allready exists. Rewrite?'):
-            return False
+            return True
         # info about downloading files
         if len(link_list) == 1:
             self.io.put("#{GREEN}Downloading 1 file:#{NONE}")
