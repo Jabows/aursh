@@ -22,6 +22,27 @@
 
 import os
 
+class ColorPacman(object):
+    def __init__(self):
+        # TODO 
+        # better colorize method. use regexp?
+        self.colorize = {
+                'core': "#{blue}%s#{none}/#{BLUE}%s#{NONE}",
+                'extra': "#{yellow}%s#{none}/#{YELLOW}%s#{NONE}",
+                'community' : "#{green}%s#{none}/#{GREEN}%s#{NONE}",
+                'testing' : "#{magenta}%s#{none}/#{MAGENTA}%s#{NONE}",
+                'unstable' : "#{red}%s#{none}/#{RED}%s#{NONE}",
+                }
+
+    def color(self, text):
+        for key in self.colorize:
+            try:
+                if text.startswith(key):
+                    # change text to color output
+                    return self.colorize[key] % tuple(text.split("/", 1))
+            except (IndexError):
+                pass
+        return text
 
 class Plugin_pacman(object):
     """Pipe to pacman"""
@@ -29,8 +50,15 @@ class Plugin_pacman(object):
         self.io = io
         self.conf = conf
         self.pacman_cmd = "pacman"
+        self.colorize = ColorPacman()
 
     def __call__(self, *args):
         """Pipe to pacman"""
         os.system("%s %s" % (self.pacman_cmd, " ".join(args)))
 
+    def do_search(self, *args):
+        """Simple -Ss call, but with color output"""
+        result = os.popen("pacman -Ss %s" % " ".join(args))
+        for line in result:
+            line = line.rstrip()
+            self.io.put(self.colorize.color(line))
