@@ -46,7 +46,7 @@ class Plugin_base(object):
             self.conf.build_dir = bdir
         self.io.put("#{GREEN}Build directory: #{NONE}" + self.conf.build_dir)
         return True
-    
+
     def create_builddir(self):
         """Creates conf.build_dir and returns True if doesn't exist,
         else returns False and do nothing
@@ -185,3 +185,11 @@ class Plugin_base(object):
         os.system("%s %s" % (self.conf.editor, efile))
         return efile
 
+    def do_remove_pkgfiles(self, pkgname, *ignore):
+        """Remove all files from build directory"""
+        pkgpath = os.path.join(os.path.expanduser(self.conf.build_dir), pkgname)
+        if not os.path.isdir(pkgpath):
+            self.io.put("#{RED}! #{WHITE}Directory does not exist.#{NONE}")
+            return False
+        self.io.put("#{BLUE}Removing: #{NONE}%s" % pkgpath)
+        shutil.rmtree(pkgpath)
