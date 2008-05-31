@@ -116,7 +116,7 @@ class Plugin_base(object):
                 pkglist.append(file)
         # If more that one *.pkg.tar.gz file found
         if len(pkglist) == 0:
-            self.io.put("Make package first.")
+            self.io.put("#{RED}! #{WHITE}No package Found.#{NONE}")
             return False
         elif len(pkglist) == 1:
             pkgfile = pkglist[0]
