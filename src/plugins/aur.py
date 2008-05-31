@@ -186,10 +186,8 @@ class Plugin_aur(object):
         elif not self.io.ask('Files allready exists. Rewrite?'):
             return True
         # info about downloading files
-        if len(link_list) == 1:
-            self.io.put("#{GREEN}Downloading 1 file:#{NONE}")
-        else:
-            self.io.put("#{GREEN}Downloading %d files:#{NONE}" % len(link_list))
+        self.io.put("#{GREEN}==> #{WHITE}downloading %s #{BLUE}(%d)#{NONE}" % \
+                (pkgname, len(link_list)))
         # download files
         for numb, filename in enumerate(link_list):
             to_download = '/'.join((url, filename))
