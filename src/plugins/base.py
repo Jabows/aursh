@@ -104,7 +104,13 @@ class Plugin_base(object):
 
     def do_install(self, pkgname, *ignore):
         """Install package if exist and return True. Return False if not."""
-        dir = self.check_compilepath(pkgname)
+        # if PKGDEST in /etc/makepkg.conf is set, this should be
+        # also set in user configuration file and return True.
+        # By default it's None
+        if self.conf.makepkg_pkgdest:
+            dir = self.conf.makepkg_pkgdest
+        else:
+            dir = self.check_compilepath(pkgname)
         if not dir:
             self.io.put("Path #{blue}%s/#{BOLD}%s#{NONE} does not exist." % \
                     (os.path.expanduser(self.conf.build_dir), pkgname))

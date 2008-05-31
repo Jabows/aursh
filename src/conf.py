@@ -83,6 +83,8 @@ class Configuration(object):
     history_length = 500
     # package build path, by default in home dir
     build_dir = os.path.join(os.path.expanduser("~"), "aurshell")
+    # /etc/makepkg.conf file reader?
+    makepkg_pkgdest = None
     # how to install package? DON'T use aurshell as root!
     install_cmd = "sudo pacman -U "
     # compile command
