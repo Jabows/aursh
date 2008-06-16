@@ -185,6 +185,12 @@ class Plugin_base(object):
         os.system("%s %s" % (self.conf.editor, efile))
         return efile
 
+    def do_ask_edit(self, pkgname, file='PKGBUILD', *ignore):
+        'Ask if edit file'
+        if self.io.ask('Want to edit %s?' % file):
+            self.do_edit(pkgname, file)
+        return True
+
     def do_remove_pkgfiles(self, pkgname, *ignore):
         """Remove all files from build directory"""
         pkgpath = os.path.join(os.path.expanduser(self.conf.build_dir), pkgname)
