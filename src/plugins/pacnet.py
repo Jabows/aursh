@@ -44,7 +44,10 @@ class Plugin_pacnet(object):
         except IOError:
             self.io.put("#{RED}Can't download JSON object.#{NONE}")
             return False
-        return json.loads(json_obj)
+        try:
+            return json.loads(json_obj)
+        except ValueError:
+            return None
 
     def do_search(self, *pkgnames):
         """Search package in AUR"""
@@ -52,8 +55,10 @@ class Plugin_pacnet(object):
             return False
         result = []
         for pkg in pkgnames:
+            json = self.search_with_json(pkg) or \
+                    {'category':'Didn\'t found'}
             result.append({
-                    u'category' : self.search_with_json(pkg)['category'],
+                    u'category' : json['category'],
                     u'name' : pkg,
             })
         if not result:
