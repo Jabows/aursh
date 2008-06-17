@@ -119,10 +119,10 @@ class Plugin_aur(object):
                 # add package name to memmory
                 self.pkg_list.append(pkg['Name'])
                 # mark searched word
-                if self.conf.aur_mark_searchword:
+                if self.conf.mark_searchword:
                     pkg['Name'] = pkg['Name'].replace(
                             pkgnames[0], "#{%s}%s#{NONE}" % \
-                                (self.conf.aur_mark_searchword, pkgnames[0]))
+                                (self.conf.mark_searchword, pkgnames[0]))
                 self.io.put(" #{BLUE}%3d#{NONE}  %s" % (numb+1, pkg['Name']))
         return True
 

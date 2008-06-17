@@ -95,7 +95,7 @@ class Configuration(object):
     # send list of arguments to many commands
     arguments_pipe = "<<"
     # paint with given color, or set to '' if don't want to 
-    aur_mark_searchword = 'RED'
+    mark_searchword = 'RED'
     # proxy settings
     proxy = {
         #"http"  : "http://username:password@proxy.address.com:port" ,
