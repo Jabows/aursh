@@ -34,7 +34,7 @@ class Plugin_pacnet(object):
         self.io = io
         self.conf = conf
         self.pkg_list = []
-        self.url_json = 'http://pacnet.karbownicki.com/pl/szukaj-kategorii/json/'
+        self.url_json = 'http://pacnet.karbownicki.com/pl/szukaj/json/?search='
 
     def search_with_json(self, pkg_name):
         """Returns converted JSON object from given url"""
@@ -44,30 +44,24 @@ class Plugin_pacnet(object):
         except IOError:
             self.io.put("#{RED}Can't download JSON object.#{NONE}")
             return False
-        try:
-            return json.loads(json_obj)
-        except ValueError:
-            return None
+        return json.loads(json_obj)
 
     def do_search(self, *pkgnames):
         """Search package in AUR"""
-        if not pkgnames:
+        if not pkgnames :
             return False
         result = []
         for pkg in pkgnames:
-            json = self.search_with_json(pkg) or \
-                    {'category':'Didn\'t found'}
-            result.append({
-                    u'category' : json['category'],
-                    u'name' : pkg,
-            })
+            if len(pkg) < 3:
+                self.io.put('Name #{BOLD}%s#{NONE} is too short.' % pkg)
+            else:
+                x = self.search_with_json(pkg)
+                result.extend(x)
         if not result:
             return False
-        self.io.put("#{blue}%s #{BLUE}###{blue} %s#{none}" % \
-                ('Package name'.rjust(15), 'package category'))
         for pkg in result:
-            self.io.put("%s #{BLUE}--#{NONE} %s" % \
-                    (pkg['name'].rjust(15), pkg['category']))
+            if pkg:
+                self.io.put("#{BLUE}%(category)s#{NONE}/#{WHITE}%(name)s#{NONE}\n  %(desc)s" % pkg)
         return True
 
     # alias
