@@ -36,35 +36,62 @@ class Plugin_pacnet(object):
         self.pkg_list = []
         self.url_json = 'http://pacnet.karbownicki.com/api/json'
 
-    def search_with_json(self, type, pkg_name=''):
+    def get_json(self, url):
         """Returns converted JSON object from given url"""
-        if type not in ('package', 'categories', 'category', 'search'):
-            raise ValueError
-        url = self.url_json + '/' +type + '/' + pkg_namae
         try:
-            json_obj = urllib.urlopen(url).read()
+            json_text = urllib.urlopen(url).read()
         except IOError:
             self.io.put("#{RED}Can't download JSON object.#{NONE}")
             return False
-        return json.loads(json_obj)
+        return json.loads(json_text)
+
+    def do_allpackages(self, *ignore):
+        url = 'http://pacnet.karbownicki.com/api/json/packages/'
+        for pkg in self.get_json(url):
+            pkg['name'] = pkg['name'].ljust(40)
+            pkg['version'] = pkg['version'].ljust(12)
+            self.io.put(
+                    "#{WHITE}%(name)s %(version)s #{BLUE} %(category)s" % pkg)
+        return True
+
+    def do_info(self, package, *ignore):
+        url = 'http://pacnet.karbownicki.com/api/json/package/' + package
+        pkglist = self.get_json(url)
+        if not pkglist: 
+            return False
+        for desc in pkglist:
+            self.io.put("""#{BLUE} Name      #{NONE}  : #{WHITE}%(name)s
+#{NONE} Category    : #{NONE}%(category)s 
+#{NONE} Version     : #{NONE}%(version)s
+#{NONE} Description : #{NONE}%(description)s
+            """ %  desc)
+        return True
+
+    def do_allcategories(self, *ignore):
+        url = 'http://pacnet.karbownicki.com/api/json/categories'
+        for c in self.get_json(url):
+            self.io.put(c['name'])
+        return True
+
+    def do_listcategory(self, category, *ignore):
+        url = 'http://pacnet.karbownicki.com/api/json/category/' + category
+        pkglist = self.get_json(url)
+        if not pkglist:
+            return False
+        for pkg in pkglist:
+            pkg['name'] = pkg['name'].ljust(22)
+            self.io.put(
+                    "#{BLUE}%(name)s #{WHITE}%(version)s\n#{NONE}  %(description)s" % pkg)
+        return True
 
     def do_search(self, *pkgnames):
         """Search package in AUR"""
         if not pkgnames :
             return False
-        result = []
-        for pkg in pkgnames:
-            if len(pkg) < 3:
-                self.io.put('Name #{BOLD}%s#{NONE} is too short.' % pkg)
-            else:
-                x = self.search_with_json(pkg)
-                result.extend(x)
-        if not result:
-            return False
-        for pkg in result:
-            if pkg:
-                self.io.put("#{BLUE}%(category)s#{NONE}/#{WHITE}%(name)s#{NONE}\n  %(desc)s" % pkg)
+        for pkgname in pkgnames:
+            url = 'http://pacnet.karbownicki.com/api/json/search/' + pkgname
+            for pkg in self.get_json(url):
+                self.io.put("""#{BLUE}%(category)s#{NONE}/#{WHITE}%(name)s
+  #{NONE}%(description)s""" % pkg)
         return True
 
-    # alias
-    __call__ = do_search
