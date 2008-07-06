@@ -34,11 +34,13 @@ class Plugin_pacnet(object):
         self.io = io
         self.conf = conf
         self.pkg_list = []
-        self.url_json = 'http://pacnet.karbownicki.com/pl/szukaj/json/?search='
+        self.url_json = 'http://pacnet.karbownicki.com/api/json'
 
-    def search_with_json(self, pkg_name):
+    def search_with_json(self, type, pkg_name=''):
         """Returns converted JSON object from given url"""
-        url = self.url_json + pkg_name
+        if type not in ('package', 'categories', 'category', 'search'):
+            raise ValueError
+        url = self.url_json + '/' +type + '/' + pkg_namae
         try:
             json_obj = urllib.urlopen(url).read()
         except IOError:
