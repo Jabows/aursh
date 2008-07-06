@@ -29,7 +29,9 @@ except ImportError:
 
 
 class Plugin_pacnet(object):
-    """Do some stuff with AUR. Search and download files."""
+    """Do some stuff with Pacnet. 
+    More about Pacnet: http://pacnet.karbownicki.com/en
+    """
     def __init__(self, io, conf):
         self.io = io
         self.conf = conf
@@ -46,6 +48,7 @@ class Plugin_pacnet(object):
         return json.loads(json_text)
 
     def do_allpackages(self, *ignore):
+        """List #{RED}ALL#{NONE} packages from Pacnet database."""
         url = 'http://pacnet.karbownicki.com/api/json/packages/'
         for pkg in self.get_json(url):
             pkg['name'] = pkg['name'].ljust(40)
@@ -55,6 +58,7 @@ class Plugin_pacnet(object):
         return True
 
     def do_info(self, package, *ignore):
+        """Show more info about package."""
         url = 'http://pacnet.karbownicki.com/api/json/package/' + package
         pkglist = self.get_json(url)
         if not pkglist: 
@@ -68,12 +72,14 @@ class Plugin_pacnet(object):
         return True
 
     def do_allcategories(self, *ignore):
+        """List all categories."""
         url = 'http://pacnet.karbownicki.com/api/json/categories'
         for c in self.get_json(url):
             self.io.put(c['name'])
         return True
 
     def do_listcategory(self, category, *ignore):
+        """List all packages from given category."""
         url = 'http://pacnet.karbownicki.com/api/json/category/' + category
         pkglist = self.get_json(url)
         if not pkglist:
@@ -85,7 +91,7 @@ class Plugin_pacnet(object):
         return True
 
     def do_search(self, *pkgnames):
-        """Search package in AUR"""
+        """Search package in Pacnet database."""
         if not pkgnames :
             return False
         for pkgname in pkgnames:
