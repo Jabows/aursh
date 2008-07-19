@@ -147,7 +147,7 @@ class Plugin_base(object):
         # arch=
         pkg_file_path = os.path.join(self.compilepath(pkgname), "PKGBUILD")
         if not os.path.isfile(pkg_file_path):
-            self.io.put("No file found")
+            self.io.put("#{RED}%s #{NONE}: No local PKGBUILD found" % pkgname)
             return False
         validator = (
                 [re.compile(r'^arch=(.*)'),  "No arch=() info"],

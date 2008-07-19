@@ -175,25 +175,27 @@ class Plugin_aur(object):
             www.close()
             return [url for url in parser.urls]
         for pkgname in pkgnames:
-            self.io.put("#{GREEN}Downloading: #{WHITE} %s #{NONE}" % pkgname)
             url = self.url_files + "/".join((pkgname, pkgname))
             link_list = list_all_links(url)[5:]
             # if no such PKGBUILD in AUR
             if link_list == []:
-                self.io.put("No files found.")
+                self.io.put("#{RED}%s #{NONE}: PKGBUILD not found." % pkgname)
+                return False
             else:
+                self.io.put("#{GREEN}Downloading: #{WHITE} %s #{NONE}" % pkgname)
                 pkgdir = os.path.join(os.path.expanduser(self.conf.build_dir), pkgname)
                 if not os.path.isdir(pkgdir):
                     os.mkdir(pkgdir)
-                elif self.io.ask('Files allready exists. Rewrite?'):
-                    # info about downloading files
-                    self.io.put("#{GREEN}==> #{WHITE}downloading %s #{BLUE}(%d)#{NONE}" % \
-                            (pkgname, len(link_list)))
-                    # download files
-                    for numb, filename in enumerate(link_list):
-                        to_download = '/'.join((url, filename))
-                        self.io.put("  #{BLUE}%3d#{NONE} |  #{BOLD}%s#{NONE}" % (numb + 1, filename))
-                        urllib.urlretrieve(to_download, os.path.join(pkgdir, filename))
+                elif not self.io.ask('Files allready exists. Rewrite?'):
+                    return True
+                # info about downloading files
+                self.io.put("#{GREEN}==> #{WHITE}downloading %s #{BLUE}(%d)#{NONE}" % \
+                        (pkgname, len(link_list)))
+                # download files
+                for numb, filename in enumerate(link_list):
+                    to_download = '/'.join((url, filename))
+                    self.io.put("  #{BLUE}%3d#{NONE} |  #{BOLD}%s#{NONE}" % (numb + 1, filename))
+                    urllib.urlretrieve(to_download, os.path.join(pkgdir, filename))
         return True
 
     def do_vote(self, pkgname, vote_type=None, *ignore):
