@@ -113,7 +113,7 @@ class Configuration(object):
         Press #{BOLD}<TAB>#{NONE} twice, to list all commands.
   Type #{BOLD}help <command>#{NONE} to show help for given command.
        Edit #{BOLD}src/conf.py#{NONE} file to change settings.
-          Press #{BOLD}Ctrl + d#{NONE} of type #{BOLD}quit#{NONE} to quit.
+          Press #{BOLD}Ctrl + d#{NONE} or type #{BOLD}quit#{NONE} to quit.
 """
 
     def __getattr__(self, name):
