@@ -21,6 +21,8 @@
 import urllib
 import os
 
+#from plugins import base
+
 try:
     import simplejson as json
 except ImportError:
@@ -218,5 +220,7 @@ class Plugin_aur(object):
             except (TypeError, KeyError):
                 pass
 
-
-
+    def do_depdownload(self, *pkgnames):
+        self.do_download(*pkgnames)
+        for pkg in pkgnames:
+            pass

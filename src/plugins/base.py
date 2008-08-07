@@ -199,3 +199,29 @@ class Plugin_base(object):
             return False
         self.io.put("#{BLUE}Removing: #{NONE}%s" % pkgpath)
         shutil.rmtree(pkgpath)
+
+    def do_check_depends(self, pkgname, filename='PKGBUILD', *ignore):
+        '''Check if all required packages are installed
+        Returns None is not or list of required packages.
+        '''
+        pkginfo_file_path = os.path.join(
+                os.path.expanduser(self.conf.build_dir), pkgname, filename)
+        if not os.path.isfile(pkginfo_file_path):
+            self.io.put('#{RED}%s #{red}file not found.#{NONE}' % filename)
+            return False
+        pkginfo = open(pkginfo_file_path).read()
+        import re
+        pkg = re.findall(re.compile(r'depends=\((?P<pkglist>.+?)\)', re.DOTALL),
+                pkginfo)
+        # remove ', " and >=anything
+        pkg = re.compile(r'(\'|\"|\>\=.[^\s]*)').sub('', pkg[0])
+        pkglist = pkg.split()
+        if not pkglist:
+            return None
+        for installedpkg in os.popen('pacman -Q'):
+            if installedpkg.split()[0] in pkglist:
+                pkglist.remove(installedpkg.split()[0])
+        if pkglist:
+            self.io.put('#{BLUE}Missing packages: #{NONE}%s' %
+                    ','.join(pkglist))
+        return pkglist

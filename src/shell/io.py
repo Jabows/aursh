@@ -21,7 +21,11 @@
 
 
 import sys
+import tty
+import termios
+
 import colorize
+
 
 class InOut(object):
     def __init__(self, stdout=None, stdin=None):
@@ -48,6 +52,19 @@ class InOut(object):
     def newline(self):
         self.stdout.write("\n")
 
+    def getch(self, message=None, newline=False):
+        if message:
+            self.put(message, newline)
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.setraw(sys.stdin.fileno())
+            gotchar = sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        return gotchar
+        
+
     def get(self, message=None, newline=False):
         """Read from input"""
         if message:
@@ -69,14 +86,11 @@ class InOut(object):
         # print the question
         self.put(question + answer, newline)
         # get the answer
-        ans = self.stdin.readline().strip().lower()
+        #ans = self.stdin.readline().strip().lower()
+        ans = self.getch().lower()
         if ans == good.lower():
             return True
         elif ans == bad.lower():
             return False
         # return default value
         return default
-        #self.put("Type #{BOLD}%s#{NONE} or #{BOLD}%s#{NONE}" % \
-        #        (good, bad))
-        #return self.ask(question, good, bad, newline)
-

@@ -4,7 +4,7 @@
 # abs.py
 #
 # Copyright (C) 2008 by Piotr Husiatyński <phusiatynski@gmail.com>
-# 
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
@@ -38,7 +38,7 @@ class BasicABS(object):
 
     def abs_search(self, pkgname):
         """Search in ABS. Returns path or None."""
-        # TODO [ 22:22 - 28.03.2008 ] 
+        # TODO [ 22:22 - 28.03.2008 ]
         # better (faster) PKGBUILD search!
         #self.io.put("#{RED}TODO#{NONE} - searching takes too much time!")
         for root, dirs, files in os.walk(self.conf.abs_path):
@@ -94,7 +94,7 @@ class Plugin_abs(BasicABS):
 
     def do_search(self, pkgname, *ignore):
         """Find PKGBUILDs in ABS file tree and show them."""
-        # TODO [ 22:26 - 28.03.2008 ] 
+        # TODO [ 22:26 - 28.03.2008 ]
         # faster searching
         #self.io.put("#{RED}TODO#{NONE} - searching takes too much time!")
         for root, dirs, files in os.walk(self.conf.abs_path):
@@ -123,7 +123,7 @@ class Plugin_abs(BasicABS):
             return False
 
     def do_install(self, pkgname, *ignore):
-        """Copy files from ABS to use build directory, 
+        """Copy files from ABS to use build directory,
         create package, install it.
         """
         dir = self.compilepath(pkgname)
