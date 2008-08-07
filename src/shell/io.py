@@ -88,7 +88,7 @@ class InOut(object):
         # get the answer
         #ans = self.stdin.readline().strip().lower()
         ans = self.getch().lower()
-        self.put(message=' ', newline=True)
+        self.newline()
         if ans == good.lower():
             return True
         elif ans == bad.lower():
