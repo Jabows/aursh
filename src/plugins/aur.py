@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 #
 # aur.py
 #
 # Copyright (C) 2008 by Piotr Husiatyński <phusiatynski@gmail.com>
-#
+# 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
@@ -20,6 +20,7 @@
 
 import urllib
 import os
+from subprocess import Popen
 
 #from plugins import base
 
@@ -53,6 +54,7 @@ class Plugin_aur(object):
         self.url_files = "http://aur.archlinux.org/packages/"
         self.url_json = "http://aur.archlinux.org/rpc.php"
         self.url_id = "http://aur.archlinux.org/packages.php?ID="
+        self.a = []
 
 
     def complete(self, text):
@@ -209,6 +211,7 @@ class Plugin_aur(object):
         return True
 
     def do_upgrade(self, *ignore):
+        b = []
         for pkg in os.popen("pacman -Qm"):
             pkg_name, pkg_ver = pkg.split()
             aur_list = self.search_with_json('info', pkg_name)
@@ -217,10 +220,20 @@ class Plugin_aur(object):
                 if aur_pkg_ver and pkg_ver != aur_pkg_ver:
                     self.io.put('%s %s - #{blue}%s#{NONE}' % \
                             (pkg_name.ljust(20), pkg_ver.rjust(14), aur_pkg_ver))
+                    b.append(pkg_name)
             except (TypeError, KeyError):
                 pass
-
+        while (len(b) > 0) == True:
+            a = b[0]
+            install = Popen('aursh'+' -S '+a, shell=True)
+            os.waitpid(install.pid, 0)
+            del b[0]
+            
+        if len(b) == 0:
+            self.io.put("#{WHITE}No more package Found.#{NONE}")
+            return False
     def do_depdownload(self, *pkgnames):
         self.do_download(*pkgnames)
         for pkg in pkgnames:
             pass
+
