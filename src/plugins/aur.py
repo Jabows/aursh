@@ -211,7 +211,7 @@ class Plugin_aur(object):
         return True
 
     def do_upgrade(self, *ignore):
-        b = []
+        to_upgrade = []
         for pkg in os.popen("pacman -Qm"):
             pkg_name, pkg_ver = pkg.split()
             aur_list = self.search_with_json('info', pkg_name)
@@ -220,15 +220,14 @@ class Plugin_aur(object):
                 if aur_pkg_ver and pkg_ver != aur_pkg_ver:
                     self.io.put('%s %s - #{blue}%s#{NONE}' % \
                             (pkg_name.ljust(20), pkg_ver.rjust(14), aur_pkg_ver))
-                    b.append(pkg_name)
+                    to_upgrade.append(pkg_name)
             except (TypeError, KeyError):
                 pass
-        while (len(b) > 0) == True:
-            a = b[0]
-            install = Popen('aursh'+' -S '+a, shell=True)
+        while to_upgrade:
+            el_to_uograde = to_upgrade.pop(0)
+            install = Popen('aursh'+' -S '+el_to_uograde, shell=True)
             os.waitpid(install.pid, 0)
-            del b[0]
-        if len(b) == 0:
+        else:
             self.io.put("#{WHITE}No more package Found.#{NONE}")
             return False
 
