@@ -228,10 +228,10 @@ class Plugin_aur(object):
             install = Popen('aursh'+' -S '+a, shell=True)
             os.waitpid(install.pid, 0)
             del b[0]
-            
         if len(b) == 0:
             self.io.put("#{WHITE}No more package Found.#{NONE}")
             return False
+
     def do_depdownload(self, *pkgnames):
         self.do_download(*pkgnames)
         for pkg in pkgnames:
