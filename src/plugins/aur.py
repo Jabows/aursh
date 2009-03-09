@@ -224,8 +224,8 @@ class Plugin_aur(object):
             except (TypeError, KeyError):
                 pass
         while to_upgrade:
-            el_to_uograde = to_upgrade.pop(0)
-            install = Popen('aursh'+' -S '+el_to_uograde, shell=True)
+            el_to_upgrade = to_upgrade.pop(0)
+            install = Popen('aursh'+' -S '+el_to_upgrade, shell=True)
             os.waitpid(install.pid, 0)
         else:
             self.io.put("#{WHITE}No more package Found.#{NONE}")
