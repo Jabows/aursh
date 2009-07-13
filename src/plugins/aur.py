@@ -180,7 +180,7 @@ class Plugin_aur(object):
             return [url for url in parser.urls]
         for pkgname in pkgnames:
             url = self.url_files + "/".join((pkgname, pkgname))
-            link_list = list_all_links(url)[5:]
+            link_list = list_all_links(url)[1:]
             # if no such PKGBUILD in AUR
             if link_list == []:
                 self.io.put("#{RED}%s #{NONE}: PKGBUILD not found." % pkgname)
