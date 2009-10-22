@@ -26,6 +26,7 @@ Shell class is simple shell framework.
 To use it, write some plugins that Shell would be able to use.
 """
 
+import re
 import cmd
 import string
 import sys
@@ -246,9 +247,12 @@ class Shell(cmd.Cmd):
                 for cmd in dir(command):
                     if cmd.startswith(self.method_prefix):
                         cmd_name = cmd[len(self.method_prefix):]
-                        helptext = getattr(command, cmd).__doc__
+                        helptext = getattr(command, cmd).__doc__ \
+                                or 'no documentation'
+                        helptext = helptext.replace('\n', ' ')
+                        helptext = re.sub('\s{2,}', ' ', helptext)
                         self.io.put(' #{BOLD}%s#{NONE} - %s' % \
-                                (cmd_name.ljust(14), helptext))
+                                (cmd_name.ljust(16), helptext))
         else:
             doc = self.get_help(arg)
             if doc:
