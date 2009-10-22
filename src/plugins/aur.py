@@ -22,13 +22,10 @@ import urllib
 import os
 from subprocess import Popen
 
-#from plugins import base
-
 try:
-    import simplejson as json
+    import json
 except ImportError:
-    import sys
-    sys.exit("To use AUR plugin, install simplejson library.")
+    import simplejson as json
 
 from sgmllib import SGMLParser
 
