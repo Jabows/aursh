@@ -1,9 +1,34 @@
-Aurshell is Python shell, that should help you with building and installing 
-packages from ABS and AUR. It also can be pacman wrapper, and even more (just
-write plugin ;)
+AURshell
+--------
+
+.. or simply `aursh` is is Python shell, that should help you with building
+and installing packages from ABS and AUR. It also can be pacman wrapper (but
+actually pacman is awesome without any third party tool), and even more -just
+write plugin.
+
+How to start?
+=============
+
+1. Download PKGBUILD, extract it, build package, install:
+
+    # wget http://aur.archlinux.org/packages/aurshell-git/aurshell-git.tar.gz
+    # tar -xvvf aurshell-git.tar.gz
+    # cd aurshell-git
+    # makepkg -i
+
+2. Read the install message and copy base configuration file to your `$HOME`
+   directory
+
+    # cp /usr/share/aurshell/aurshell.conf $HOME/.aurshell 
+
+3. Run `aursh`. Type either `aursh` to start interactive shell or `aursh
+<command>` to use it as simple script. 
+
+4. Use `help` command to learn how to use it.
 
 
+Bugs
+====
 
 If you know how to improve aurshell or you've found a bug, please contact me
-    
-phusiatynski /at/ gmail /dot/ com
+(see my profile)
