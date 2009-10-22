@@ -85,9 +85,8 @@ class ColorsTemplate(dict):
                 "_BLUE"         : "\033[0;44m",
             }
         self._colors.update(colors)
-    
+
     def __getitem__(self, key):
-        # TODO [ 12:35 - 15.03.2008 ]  
         # better key checking
         if self.mono:
             return ""
@@ -103,4 +102,3 @@ if __name__ == "__main__":
     ct = ColorsTemplate()
     for c in ct._colors:
         print ct._colors['NONE'], ct._colors[c], c ,
-

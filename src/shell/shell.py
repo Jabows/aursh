@@ -21,7 +21,7 @@
 
 
 """
-Shell class is simple shell framework. 
+Shell class is simple shell framework.
 
 To use it, write some plugins that Shell would be able to use.
 """
@@ -34,7 +34,6 @@ import readline
 
 from io import InOut
 
-__version__ = "0.1"
 
 
 class Shell(cmd.Cmd):
@@ -50,7 +49,7 @@ class Shell(cmd.Cmd):
         # use this instead of plain `print`
         self.io = InOut()
         self.io.colorize.colors.mono = not self.conf.use_colors == "True"
-        # load as plugins all class that name stasts with class_prefix
+        # load as plugins all classes that name starts with class_prefix
         self.class_prefix = "Plugin_"
         # use all methods that name stasts with method_prefix
         self.method_prefix = "do_"
@@ -135,7 +134,7 @@ class Shell(cmd.Cmd):
             self.io.put("%s : command not found." % cmd[0])
             return False
         elif len(cmd) == 1:
-            # try tu run __call__() method
+            # try to run __call__() method
             try:
                 return getattr(self.commands[cmd[0]], "__call__")()
             except (TypeError, AttributeError):
@@ -242,6 +241,14 @@ class Shell(cmd.Cmd):
         """
         if not arg:
             self.do_help('help')
+            for (name, command) in self.commands.iteritems():
+                self.io.put('#{BLUE}%s#{NONE}' % name)
+                for cmd in dir(command):
+                    if cmd.startswith(self.method_prefix):
+                        cmd_name = cmd[len(self.method_prefix):]
+                        helptext = getattr(command, cmd).__doc__
+                        self.io.put(' #{BOLD}%s#{NONE} - %s' % \
+                                (cmd_name.ljust(14), helptext))
         else:
             doc = self.get_help(arg)
             if doc:
@@ -296,7 +303,7 @@ class Shell(cmd.Cmd):
             readline.write_history_file(os.path.expanduser(self.conf.history_file))
         self.io.put('#{BLUE}quit..#{NONE}')
         sys.exit(1)
-    
+
     # method aliases
     do_EOF = do_quit
     do_exit = do_quit

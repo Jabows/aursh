@@ -28,16 +28,11 @@ import colorize
 
 
 class InOut(object):
-    def __init__(self, stdout=None, stdin=None):
-        """Set Input and Output"""
-        if not stdout:
-            self.stdout = sys.stdout
-        else:
-            self.stdout = stdout
-        if not stdin:
-            self.stdin = sys.stdin
-        else:
-            self.stdin = stdin
+    def __init__(self, stdout=None, stdin=None, stderr=None):
+        """Set up IO"""
+        self.stdin = stdin or sys.stdin
+        self.stdout = stdout or sys.stdout
+        self.stderr = stderr or sys.stderr
         self.colorize = colorize.Colorize()
 
     def put(self, message, newline=True):
@@ -50,9 +45,11 @@ class InOut(object):
         self.stdout.write(msg_out)
 
     def newline(self):
+        "Start new line"
         self.stdout.write("\n")
 
     def getch(self, message=None, newline=False):
+        "Get any single character from input"
         if message:
             self.put(message, newline)
         fd = sys.stdin.fileno()
@@ -63,7 +60,6 @@ class InOut(object):
         finally:
             termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
         return gotchar
-        
 
     def get(self, message=None, newline=False):
         """Read from input"""
@@ -83,15 +79,11 @@ class InOut(object):
             bad = bad.upper()
             good = good.lower()
             answer = "[%s/#{BOLD}%s#{NONE}] " % (good, bad)
-        # print the question
         self.put(question + answer, newline)
-        # get the answer
-        #ans = self.stdin.readline().strip().lower()
         ans = self.getch().lower()
         self.newline()
         if ans == good.lower():
             return True
         elif ans == bad.lower():
             return False
-        # return default value
         return default
