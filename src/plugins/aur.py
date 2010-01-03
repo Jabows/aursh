@@ -8,6 +8,7 @@ import cookielib
 import shutil
 import tarfile
 import subprocess
+import hashlib
 
 from libs.multipartposthandler import MultipartPostHandler
 
@@ -55,20 +56,14 @@ class AurQuery(object):
 class AurAuth(object):
     """All actions that require AUR registration"""
 
-    allowed_categories = (None, 'daemons', 'devel', 'editors',
-            'emulators', 'games', 'gnome', 'i18n', 'kde', 'kernels', 'lib',
-            'modules', 'multimedia', 'network', 'office', 'science', 'system',
-            'x11', 'xfce')
-
     def __init__(self, login, password):
         self.login = login
         self.password = password
 
-    @property
-    def opener(self):
+    def __call__(self, *args, **kwds):
         if not hasattr(self, '_opener'):
             self._auth()
-        return self._opener
+        return self._opener.open(*args, **kwds)
 
     def _auth(self):
         """Create authorized opener"""
@@ -82,24 +77,15 @@ class AurAuth(object):
         self._opener = opener
         return self
 
-    def upload(self, archive_path, category):
-        "Upload given archived package to AUR"
-        form_data = {
-                'pkgsubmit': '1',
-                'category': self.allowed_categories.index(category),
-                'pfile': open(archive_path, 'rb'),
-            }
-        return self.opener.open(configuration.AUR_URL_SUBMIT, form_data)
-
-    def vote(self, pkgname, vote=1):
-        if not vote in [1, -1]:
-            raise Exception("Vote parameter must be 1 or -1")
-        raise NotImplementedError
-
 
 class Aur(Plugin):
     aur_download_url = 'http://aur.archlinux.org/'
     aur_package_url = 'http://aur.archlinux.org/packages.php?ID=%d'
+    allowed_categories = (None, 'daemons', 'devel', 'editors', 'emulators',
+            'games', 'gnome', 'i18n', 'kde', 'kernels', 'lib', 'modules',
+            'multimedia', 'network', 'office', 'science', 'system', 'x11',
+            'xfce')
+
     io = IO()
 
     @plugin_command('info')
@@ -150,7 +136,7 @@ class Aur(Plugin):
     @plugin_command('upload')
     def upload(self, pkg, category):
         """Upload given package package"""
-        if not category in AurAuth.allowed_categories:
+        if not category in self.allowed_categories:
             raise errors.BadUsage('Unknown category: %s' % category)
         if os.path.isdir(pkg):
             pkg = self._build_aur_package(directory=pkg)
@@ -159,7 +145,12 @@ class Aur(Plugin):
         aur_auth = AurAuth(configuration.AUR_USERNAME,
                 configuration.AUR_PASSWORD)
         _log.debug('uploading package: %s (%s)', pkg, category)
-        aur_auth.upload(pkg, category)
+        form_data = {
+            'pkgsubmit': '1',
+            'category': self.allowed_categories.index(category),
+            'pfile': open(pkg, 'rb'),
+        }
+        aur_auth(configuration.AUR_URL_SUBMIT, form_data)
         return True
 
     @plugin_command('edit')
@@ -190,7 +181,7 @@ class Aur(Plugin):
             'ID': package_id,
         }
         comment_url = self.aur_package_url % package_id
-        aur_auth.opener.open(comment_url, form_data)
+        aur_auth(comment_url, form_data)
         return True
 
     @plugin_command('vote')
@@ -207,7 +198,15 @@ class Aur(Plugin):
         }
         form_data['IDs[%d]' % package_id] = 1
         form_data.update(vote)
-        x = aur_auth.opener.open(vote_url, form_data)
+        x = aur_auth(vote_url, form_data)
+        return True
+
+    @plugin_command('hash')
+    def hash(self, pkg_name):
+        for tarball in self._find_aur_tarballs(pkg_name):
+            pkg_hash = self._get_tarball_md5(tarball)
+            pkg_name = tarball.rsplit('/', 1)[1]
+            self.io.put('%42s: %s' % (pkg_name, pkg_hash))
         return True
 
     @plugin_command('unvote')
@@ -332,6 +331,16 @@ class Aur(Plugin):
         # if not found...
         return None
 
+    def _find_aur_package(self, pkg_name):
+        directory = os.path.join(
+                self._get_package_directory(pkg_name), pkg_name)
+        for root, dirs, files in os.walk(directory):
+            for f in files:
+                if f.endswith(configuration.AUR_PKG_EXT):
+                    pkg_path = os.path.join(root, f)
+                    return pkg_path
+        return None
+
     def _get_package_id(self, pkg_name):
         query = AurQuery('info')
         query.filter(arg=pkg_name)
@@ -339,3 +348,16 @@ class Aur(Plugin):
         if result['type'] == 'errors':
             raise errors.UnknownPackage('package not found: %s' % pkg_name)
         return int(result['results']['ID'])
+
+    def _find_aur_tarballs(self, pkg_name):
+        directory = os.path.join(
+                self._get_package_directory(pkg_name), pkg_name)
+        for root, dirs, files in os.walk(directory):
+            for f in files:
+                if f.endswith(configuration.AUR_PKG_EXT):
+                    pkg_path = os.path.join(root, f)
+                    yield pkg_path
+
+    def _get_tarball_md5(self, pkg_path):
+        with open(pkg_path) as pkg:
+            return hashlib.md5(pkg.read()).hexdigest()

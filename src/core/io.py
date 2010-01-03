@@ -15,7 +15,7 @@ class IO(object):
 
     def put(self, message, newline=True):
         "Print message without formatting"
-        self.stdout.write(message)
+        self.stdout.write(message.encode('utf-8'))
         if newline:
             self.stdout.write('\n')
 

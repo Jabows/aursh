@@ -3,6 +3,7 @@
 import functools
 
 from core import errors
+from core.conf import configuration
 
 
 registered_plugins = {}
@@ -13,7 +14,7 @@ PLUGIN_CMD_TOKEN = '_plugin_command_name'
 class MetaPlugin(type):
 
     # ignore plugins with followed names
-    IGNORE_PLUGINS = set(['Plugin', ])
+    IGNORE_PLUGINS = set(['Plugin', 'AliasPlugin'])
 
     def __new__(cls, name, bases, dct):
         klass = type.__new__(cls, name, bases, dct)
@@ -57,6 +58,19 @@ class Plugin(object):
         return self._get_all_commands
 
 
+class AliasPlugin(Plugin):
+    def __init__(self, cmd_path):
+        super(AliasPlugin, self).__init__()
+        self.cmd_path = cmd_path
+
+    def handle_command(self, *args):
+        plugin = registered_plugins[self.cmd_path[0]]
+        handler = plugin.get_all_commands()[self.cmd_path[1]]
+        params = list(args[2:])
+        params.extend(args)
+        return handler(*params)
+
+
 def plugin_command(cmd_name):
     """All objects decorated with this function will be used as application
     commands.
@@ -71,3 +85,7 @@ def plugin_command(cmd_name):
         setattr(wrapper, PLUGIN_CMD_TOKEN, cmd_name)
         return wrapper
     return decorator
+
+def load_plugin_commands_aliases():
+    for (alias, path) in configuration.ALIASSES.iteritems():
+        registered_plugins[alias] = AliasPlugin(path)
