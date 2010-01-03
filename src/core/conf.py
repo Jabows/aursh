@@ -48,3 +48,12 @@ class Configuration(dict):
         for name in dir(conf):
             if not name.startswith('_'):
                 self[name] = getattr(conf, name)
+
+    def __getattr__(self, name):
+        try:
+            return self[name]
+        except KeyError:
+            raise AttributeError('Unknown name: %s' % name)
+
+
+configuration = Configuration()

@@ -3,8 +3,16 @@
 import os
 import json
 import urllib
+import shutil
+import tarfile
+import subprocess
 
 from core.plugin import Plugin, plugin_command
+from core.conf import configuration
+from core import logger
+
+
+_log = logger.get('aur')
 
 
 class AurQuery(object):
@@ -47,17 +55,20 @@ class Aur(Plugin):
         """Get info about given package"""
         query = AurQuery('info')
         query.filter(arg=pkg_name)
-        print query.fetch()
-        # TODO - stdout
+        result = query.fetch()
+        self._show_aur_info_result(result)
 
     @plugin_command('search')
     def search(self, pkg_name):
         """Search package in AUR"""
         query = AurQuery('search')
         query.filter(arg=pkg_name)
-        print query.fetch()
-        # TODO - stdout
+        result = query.fetch()
+        self._show_aur_search_result(result)
 
+    @plugin_command('pkgbuild')
+    def pkgbuild(self, pkg_name):
+        pass
 
     @plugin_command('download')
     def download(self, pkg_name):
@@ -70,8 +81,22 @@ class Aur(Plugin):
         url_path = pkg['results']['URLPath']
         if url_path.startswith('/'):
             url_path = url_path[1:]
-        print os.path.join(self.aur_download_url, url_path)
-        # TODO - download
+        pkg_aur_url = os.path.join(self.aur_download_url, url_path)
+        pkg_aur_name = pkg_aur_url.rsplit('/', 1)[1]
+        pkg_dest = os.path.join(
+                self._create_package_directory(pkg_name), pkg_aur_name)
+        with open(pkg_dest, 'w') as pkg:
+            _log.debug('fetching package from: %s', pkg_aur_url)
+            pkg_remote = urllib.urlopen(pkg_aur_url)
+            pkg.write(pkg_remote.read())
+            pkg_remote.close()
+        _log.debug('pkg_dest: %s', pkg_dest)
+        self._extract_package(pkg_name, pkg_dest)
+        return True
+
+    @plugin_command('make')
+    def make(self, pkg_name, *flags):
+        return self._run_package_build(pkg_name, flags)
 
     @plugin_command('upload')
     def upload(self, pkg_path):
@@ -83,8 +108,60 @@ class Aur(Plugin):
         """Download package from aur, run editor and push back"""
         raise NotImplemented
 
-    def _extract_aur_package(self, package_path):
-        raise NotImplemented
+    @plugin_command('clean')
+    def clean(self, pkg_name):
+        self._remove_package_directory(pkg_name)
 
-    def _run_package_build(self, package_dir):
-        raise NotImplemented
+    def _extract_package(self, pkg_name, archive_path):
+        archive = tarfile.open(archive_path, 'r:gz')
+        archive.extractall(self._get_package_directory(pkg_name))
+
+    def _create_package_directory(self, pkg_name):
+        path = self._get_package_directory(pkg_name)
+        if not os.path.isdir(path):
+            os.makedirs(path)
+        else:
+            _log.debug('package directory allready exists: %s', path)
+        return path
+
+    def _remove_package_directory(self, pkg_name):
+        path = self._get_package_directory(pkg_name)
+        if not os.path.isdir(path):
+            return False
+        shutil.rmtree(path)
+        return True
+
+    def _get_package_directory(self, pkg_name):
+        return os.path.join(configuration.AUR_BUILD_DIRECTORY, pkg_name)
+
+    def _run_package_build(self, pkg_name, makepkg_flags):
+        chdir_to = os.path.join(
+                self._get_package_directory(pkg_name), pkg_name)
+        _log.debug('changing working directory to: %s', chdir_to)
+        os.chdir(chdir_to)
+        makepkg_cmd = configuration.MAKEPKG + ' ' + ' '.join(makepkg_flags)
+        makepkg = subprocess.Popen(makepkg_cmd, shell=True)
+        exit_status = os.waitpid(makepkg.pid, 0)
+
+    def _show_aur_search_result(self, data):
+        show_format = configuration.AUR_SEARCH_FORMAT
+        if data['type'] == 'error':
+            _log.debug('bad search result: %s', data)
+            print data['results']
+            return
+        for result in data['results']:
+            for field_name in show_format:
+                field_data = result.get(field_name)
+                print '%20s: %s' % (field_name, field_data)
+            print ''
+
+    def _show_aur_info_result(self, data):
+        show_format = configuration.AUR_INFO_FORMAT
+        if data['type'] == 'error':
+            _log.debug('bad search result: %s', data)
+            print data['results']
+            return
+        result = data['results']
+        for field_name in show_format:
+            field_data = result.get(field_name)
+            print '%20s: %s' % (field_name, field_data)
