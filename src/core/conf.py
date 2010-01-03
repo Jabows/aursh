@@ -3,12 +3,13 @@
 import os
 import sys
 
-from core.errors import ConfigurationError
+from core import errors
 
 
 
 class Configuration(dict):
     _conf_file = 'aursh/conf'
+    env_prefix = 'AURSH_'
 
     def __init__(self):
         super(Configuration, self).__init__()
@@ -26,7 +27,7 @@ class Configuration(dict):
         conf = os.path.join('/usr/share', self._conf_file)
         if os.path.isfile(conf):
             return conf
-        raise ConfigurationError('Can\'t find configuration file')
+        raise errors.ConfigurationError('Can\'t find configuration file')
 
     def _load_configuration(self):
         conf_file = self._configuration_file_path()
@@ -41,7 +42,7 @@ class Configuration(dict):
             if remove_conf_file_path:
                 sys.path.remove(conf_file_path)
         except ImportError as e:
-            raise ConfigurationError(
+            raise errors.ConfigurationError(
                     'Configuration file contains erorrs'
                     '\n'.join(e.args))
         # update current object with data from configuration file
@@ -50,10 +51,13 @@ class Configuration(dict):
                 self[name] = getattr(conf, name)
 
     def __getattr__(self, name):
-        try:
+        if name in self:
             return self[name]
-        except KeyError:
-            raise AttributeError('Unknown name: %s' % name)
+        env_var = os.getenv(self.env_prefix + name)
+        if env_var:
+            return env_var
+        err_msg = 'Unknown configuration variable: %s' % name
+        raise errors.UnknownSetting(err_msg)
 
 
 configuration = Configuration()

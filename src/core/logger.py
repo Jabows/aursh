@@ -9,15 +9,15 @@ from core.conf import configuration
 
 
 
-LOGGING_DIRECTORY = getattr(configuration, 'LOGGING_DIRECTORY', '/tmp/')
-LOGGING_LEVELS = getattr(configuration, 'LOGGING_LEVELS', {})
+LOGGING_DIRECTORY = configuration.get('LOGGING_DIRECTORY', '/tmp/')
+LOGGING_LEVELS = configuration.get('LOGGING_LEVELS', {})
 LOGGING_CONFIGURATION = {
         'maxBytes': 1024 * 3,
         'backupCount': 2,
 }
 LOGGING_CONFIGURATION.update(
-        getattr(configuration, 'LOGGING_CONFIGURATION', {}))
-LOGGING_HANDLERS = getattr(configuration, 'LOGGING_HANDLERS', [RotatingFileHandler, ])
+        configuration.get('LOGGING_CONFIGURATION', {}))
+LOGGING_HANDLERS = configuration.get('LOGGING_HANDLERS', [RotatingFileHandler, ])
 
 
 
@@ -33,7 +33,7 @@ def get(name):
         log_file += '.log'
     logger = logging.getLogger(name)
     # set logging level - full log when running in debug mode
-    if configuration.DEBUG:
+    if configuration.get('DEBUG', False):
         logger.setLevel(logging.DEBUG)
     elif name in LOGGING_LEVELS:
         logger.setLevel(LOGGING_LEVELS[name])
