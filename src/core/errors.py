@@ -9,6 +9,10 @@ class UnknownCommand(AurshError):
     pass
 
 
+class UnknownPackage(AurshError):
+    pass
+
+
 class BadUsage(AurshError):
     pass
 
@@ -16,11 +20,14 @@ class BadUsage(AurshError):
 class ConfigurationError(AurshError):
     pass
 
+
 class UnknownSetting(ConfigurationError):
     pass
 
+
 class PluginError(AurshError):
     pass
+
 
 class MissinFile(AurshError):
     pass

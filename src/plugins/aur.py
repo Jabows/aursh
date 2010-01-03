@@ -99,6 +99,7 @@ class AurAuth(object):
 
 class Aur(Plugin):
     aur_download_url = 'http://aur.archlinux.org/'
+    aur_package_url = 'http://aur.archlinux.org/packages.php?ID=%d'
     io = IO()
 
     @plugin_command('info')
@@ -177,6 +178,41 @@ class Aur(Plugin):
         self.download(pkg_name)
         self.make(pkg_name)
         self._run_package_install(pkg_name)
+
+    @plugin_command('comment')
+    def comment(self, pkg_name, *message):
+        message = ' '.join(message)
+        package_id = self._get_package_id(pkg_name)
+        aur_auth = AurAuth(configuration.AUR_USERNAME,
+                configuration.AUR_PASSWORD)
+        form_data = {
+            'comment': message,
+            'ID': package_id,
+        }
+        comment_url = self.aur_package_url % package_id
+        aur_auth.opener.open(comment_url, form_data)
+        return True
+
+    @plugin_command('vote')
+    def vote(self, pkg_name, vote_type=None):
+        vote = {'do_Vote': True}
+        if vote_type in ['down', '-', '-1', 'remove', 'unvote']:
+            vote = {'do_UnVote': 'UnVote'}
+        package_id = self._get_package_id(pkg_name)
+        vote_url = self.aur_package_url % package_id
+        aur_auth = AurAuth(configuration.AUR_USERNAME,
+                configuration.AUR_PASSWORD)
+        form_data = {
+            'ID': package_id,
+        }
+        form_data['IDs[%d]' % package_id] = 1
+        form_data.update(vote)
+        x = aur_auth.opener.open(vote_url, form_data)
+        return True
+
+    @plugin_command('unvote')
+    def unvote(self, pkg_name):
+        return self.vote(pkg_name, 'unvote')
 
     def _extract_package(self, pkg_name, archive_path):
         archive = tarfile.open(archive_path, 'r:gz')
@@ -295,3 +331,11 @@ class Aur(Plugin):
                 return os.path.join(root, configuration.PKGBUILD_NAME)
         # if not found...
         return None
+
+    def _get_package_id(self, pkg_name):
+        query = AurQuery('info')
+        query.filter(arg=pkg_name)
+        result = query.fetch()
+        if result['type'] == 'errors':
+            raise errors.UnknownPackage('package not found: %s' % pkg_name)
+        return int(result['results']['ID'])

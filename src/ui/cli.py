@@ -29,3 +29,5 @@ class ConsoleInterface(object):
                 raise e
             err_message = '\n'.join(e.args)
             print '%s: %s' % (type(e).__name__, err_message)
+        except KeyboardInterrupt:
+            pass
