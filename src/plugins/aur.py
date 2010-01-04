@@ -165,7 +165,7 @@ class Aur(Plugin):
         self._remove_package_directory(pkg_name)
 
     @plugin_command('install')
-    def intsall(self, pkg_name):
+    def install(self, pkg_name):
         self.download(pkg_name)
         self.make(pkg_name)
         self._run_package_install(pkg_name)
@@ -212,6 +212,51 @@ class Aur(Plugin):
     @plugin_command('unvote')
     def unvote(self, pkg_name):
         return self.vote(pkg_name, 'unvote')
+
+    @plugin_command('upgrade')
+    def upgrade(self):
+        to_upgrade = {}
+        for (pkg_name, version) in self._get_all_aur_packages():
+            if not self._is_package_outdated(pkg_name, version):
+                continue
+            to_upgrade[pkg_name] = version
+        # TODO - show summary, confirm upgrade
+        for pkg_name in to_upgrade:
+            self.download(pkg_name)
+            self.make(pkg_name)
+            self._run_package_install(pkg_name)
+        return True
+
+    def _find_missing_dependencies(self, pkg_name):
+        raise NotImplemented
+
+    def _is_package_outdated(self, pkg_name, version):
+        """Check in AUR if package with given name and version is outdated.
+
+        Returns True or False.
+        """
+        query = AurQuery('info')
+        query.filter(arg=pkg_name)
+        result = query.fetch()
+        if result['type'] == 'error':
+            _log.debug('bad search result: %s', pkg_name)
+            self.io.put('package does not exist in AUR: %s' % pkg_name)
+            return
+        pkg = result['results']
+        assert pkg_name == pkg['Name']
+        aur_version = pkg['Version']
+        # TODO - compare versions! This is mock cmp ;)
+        return version < aur_version
+
+    def _get_all_aur_packages(self):
+        """Get list of packages installed from AUR
+
+        Return format is (package name, package version), both string type.
+        """
+        aur_pkg_lister = subprocess.Popen(
+                configuration.AUR_INSTALLED_PKG, stdout=subprocess.PIPE)
+        for pkg_info in aur_pkg_lister.stdout:
+            yield pkg_info.split()
 
     def _extract_package(self, pkg_name, archive_path):
         archive = tarfile.open(archive_path, 'r:gz')
