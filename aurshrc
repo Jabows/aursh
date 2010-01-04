@@ -1,0 +1,55 @@
+import os
+
+
+ALIASSES = {
+    'Ss': ['aur', 'search'],
+    'Si': ['aur', 'info'],
+}
+
+
+DEBUG = True
+
+LOGGING_DIRECTORY = '/tmp/aursh/log'
+LOGGING_LEVELS = {}
+LOGGING_CONFIGURATION = {}
+
+AUR_BUILD_DIRECTORY = '/tmp/aursh/'
+AUR_URL_MAIN = "http://aur.archlinux.org/"
+AUR_URL_LOGIN = "http://aur.archlinux.org/index.php"
+AUR_URL_SUBMIT = "http://aur.archlinux.org/pkgsubmit.php"
+AUR_URL_VOTE = ""
+
+MAKEPKG = 'makepkg'
+PKG_INSTALL = 'sudo pacman -U '
+PKG_EXT = '.pkg.tar.gz'
+AUR_PKG_BUILD = 'makepkg --source -f'
+AUR_PKG_EXT = '.src.tar.gz'
+
+PKGBUILD_NAME = 'PKGBUILD'
+
+EDITOR = os.getenv('EDITOR') or 'vim'
+
+# AUR_USERNAME = 'your username'
+# AUR_PASSWORD = 'secred passoword'
+
+AUR_SEARCH_FORMAT = (
+    'Name',
+    'Description',
+    #'URL',
+    'Version',
+    # 'License',
+    #'OutOfDate',
+    #'NumVotes',
+)
+
+AUR_INFO_FORMAT = (
+    'Name',
+    'Description',
+    'URL',
+    'Version',
+    'License',
+    #'OutOfDate',
+    #'NumVotes',
+)
+
+# vim:set ft=python :
