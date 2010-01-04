@@ -1,3 +1,12 @@
+aurshll - ver 2
+===============
+
+You may be interested in [aursh v2
+branch](http://github.com/husio/aursh/tree/v2). Current aurshell branch is no
+longer being developed.
+
+
+
 AURshell
 ========
 
