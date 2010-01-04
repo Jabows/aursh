@@ -5,7 +5,7 @@ aursh configuration
 :Date:   2010-01-03
 :mod:`configuration` --- basic aursh configuration
 
-overwiev
+overview
 --------
 
 Configuration file can be placed in any file set with `$AURSHRC` envinonment
