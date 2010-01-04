@@ -25,6 +25,8 @@ PKG_EXT = '.pkg.tar.gz'
 AUR_PKG_BUILD = 'makepkg --source -f'
 AUR_PKG_EXT = '.src.tar.gz'
 
+AUR_INSTALLED_PKG = 'pacman -Qm'
+
 PKGBUILD_NAME = 'PKGBUILD'
 
 EDITOR = os.getenv('EDITOR') or 'vim'
