@@ -1,4 +1,6 @@
 #!/bin/bash
 
-cd /usr/share/aurshell
-python aurshell.py $@
+
+cd /usr/share/aursh
+
+python aursh.py $@
