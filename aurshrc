@@ -2,12 +2,36 @@ import os
 
 
 ALIASSES = {
+    '-Ss': ['aur', 'search'],
     'Ss': ['aur', 'search'],
+
+    '-Si': ['aur', 'info'],
     'Si': ['aur', 'info'],
+
+    '-S': ['aur', 'install'],
+    'S': ['aur', 'install'],
+
+    '-Suy': ['aur', 'upgrade'],
+    'Suy': ['aur', 'upgrade'],
+
+    '-Sw': ['aur', 'download'],
+    'Sw': ['aur', 'download'],
+
+    '-Sv': ['aur', 'vote'],
+    'Sv': ['aur', 'vote'],
+
+    '-Suv': ['aur', 'unvote'],
+    'Suv': ['aur', 'unvote'],
+
+    '-Se': ['aur', 'edit'],
+    'Se': ['aur', 'edit'],
+
+    '-Scc': ['aur', 'clean'],
+    'Scc': ['aur', 'clean'],
 }
 
 
-DEBUG = True
+DEBUG = False
 
 LOGGING_DIRECTORY = '/tmp/aursh/log'
 LOGGING_LEVELS = {}
