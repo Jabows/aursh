@@ -28,6 +28,9 @@ ALIASSES = {
 
     '-Scc': ['aur', 'clean'],
     'Scc': ['aur', 'clean'],
+
+    '-Sh': ['help', 'help'],
+    'Sh': ['help', 'help'],
 }
 
 

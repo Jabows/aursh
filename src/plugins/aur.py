@@ -89,7 +89,6 @@ class Aur(Plugin):
             'multimedia', 'network', 'office', 'science', 'system', 'x11',
             'xfce')
 
-    io = IO()
 
     @plugin_command('info')
     def info(self, pkg_name):

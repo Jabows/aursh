@@ -5,6 +5,8 @@ import functools
 from core import errors
 from core.conf import configuration
 from core.tools import format_docstring
+from core.io import IO
+
 
 registered_plugins = {}
 
@@ -29,11 +31,19 @@ class Plugin(object):
 
     __metaclass__ = MetaPlugin
 
+    io = IO()
+
     class BadUsage(errors.BadUsage):
         "Raised when plugin command was called with bad arguments"
         pass
 
     def __call__(self):
+        plugin_doc = format_docstring(self, 18)
+        plugin_name = type(self).__name__.lower()
+        self.io.put()
+        self.io.put('%15s: %s' % (plugin_name, plugin_doc))
+        self.io.put('   ' + '_' * 60)
+        self.io.put()
         all_commands = self.get_all_commands()
         for (name, handler) in all_commands.iteritems():
             help_msg = format_docstring(handler, 18)
