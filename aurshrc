@@ -46,7 +46,7 @@ AUR_URL_LOGIN = "http://aur.archlinux.org/index.php"
 AUR_URL_SUBMIT = "http://aur.archlinux.org/pkgsubmit.php"
 AUR_URL_VOTE = ""
 
-MAKEPKG = 'makepkg'
+MAKEPKG = 'makepkg -f'
 PKG_INSTALL = 'sudo pacman -U '
 PKG_EXT = '.pkg.tar.gz'
 AUR_PKG_BUILD = 'makepkg --source -f'

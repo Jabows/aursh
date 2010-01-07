@@ -15,7 +15,6 @@ from libs.multipartposthandler import MultipartPostHandler
 
 from core.plugin import Plugin, plugin_command
 from core.conf import configuration
-from core.io import IO
 from core import logger
 from core import errors
 
