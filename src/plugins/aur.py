@@ -89,6 +89,12 @@ class Aur(Plugin):
 
     io = IO()
 
+    def __call__(self):
+        all_commands = self.get_all_commands()
+        for (name, handler) in all_commands.iteritems():
+            help_msg = self.get_help_message(handler, 18)
+            self.io.put('%15s - %s' % (name, help_msg))
+
     @plugin_command('info')
     def info(self, pkg_name):
         """Get info about given package

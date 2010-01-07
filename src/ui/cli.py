@@ -31,6 +31,7 @@ class ConsoleInterface(object):
             self.io.error('%s\n%s' % \
                     (type(e).__name__, err_message))
             if configuration.DEBUG:
+                self.io.put('')
                 traceback.print_tb(sys.exc_info()[2])
                 raise e
         except KeyboardInterrupt:

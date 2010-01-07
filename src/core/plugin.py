@@ -60,6 +60,16 @@ class Plugin(object):
             self._get_all_commands = all_commands
         return self._get_all_commands
 
+    def get_help_message(self, handler, lspace=20):
+        "Get formatted docstring message from any plugin handler"
+        doc = handler.__doc__
+        if not doc:
+            return ''
+        joiner = '\n' + ' ' * lspace
+        doc = doc.strip()
+        doc = doc.split('\n')
+        return joiner.join(line.strip() for line in doc)
+
 
 class AliasPlugin(Plugin):
     def __init__(self, cmd_path):
