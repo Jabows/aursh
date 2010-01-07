@@ -140,8 +140,7 @@ class Aur(Plugin):
             url_path = url_path[1:]
         pkg_aur_url = os.path.join(self.aur_download_url, url_path)
         pkg_aur_name = pkg_aur_url.rsplit('/', 1)[1]
-        pkg_dest = os.path.join(
-                self._create_package_directory(pkg_name), pkg_aur_name)
+        pkg_dest = self._create_package_directory(pkg_name, pkg_aur_name)
         _log.debug('fetching package from: %s', pkg_aur_url)
         _log.debug('pkg_dest: %s', pkg_dest)
         urllib.urlretrieve(pkg_aur_url, pkg_dest)
@@ -281,8 +280,9 @@ class Aur(Plugin):
         archive = tarfile.open(archive_path, 'r:gz')
         archive.extractall(self._get_package_directory(pkg_name))
 
-    def _create_package_directory(self, pkg_name):
+    def _create_package_directory(self, pkg_name, *args):
         path = self._get_package_directory(pkg_name)
+        path = os.path.join(path, *args)
         if not os.path.isdir(path):
             os.makedirs(path)
         else:
