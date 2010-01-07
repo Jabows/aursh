@@ -20,13 +20,16 @@ class IO(object):
             self.stdout.write('\n')
 
     def info(self, message, newline=True):
-        pass
+        # TODO
+        self.put(message, newline)
 
     def warning(self, message, newline=True):
-        pass
+        # TODO
+        self.put(message, newline)
 
     def error(self, message, newline=True):
-        pass
+        # TODO
+        self.put(message, newline)
 
     def read_char(self):
-        pass
+        raise NotImplemented

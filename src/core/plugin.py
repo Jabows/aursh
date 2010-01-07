@@ -38,7 +38,10 @@ class Plugin(object):
             return self()
         command = args[0]
         params = args[1:]
-        handler = self.get_all_commands()[command]
+        all_handlers = self.get_all_commands()
+        handler = all_handlers.get(command, None)
+        if handler is None:
+            raise errors.UnknownCommand('Unknown command: %s' % command)
         return handler(*params)
 
     def get_all_commands(self):
@@ -81,7 +84,11 @@ def plugin_command(cmd_name):
             try:
                 return func(*args, **kwds)
             except TypeError:
-                raise Plugin.BadUsage(func.__doc__)
+                err = ''
+                doc = func.__doc__
+                if doc:
+                    err = '\n'.join(l.strip() for l in doc.split('\n'))
+                raise Plugin.BadUsage(err)
         setattr(wrapper, PLUGIN_CMD_TOKEN, cmd_name)
         return wrapper
     return decorator
