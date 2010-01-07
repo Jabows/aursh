@@ -8,24 +8,33 @@ aur plugin commands handlers
 ----------------------------
 
 
-`search <name>` - search in AUR for application with given name
+.. describe:: search <name>
+Search in AUR for application with given name. You can use
+`^` and `$` regular expression syntax symbols.
 
-`info <name>` - show info about package with given name
+.. describe:: info <name>
+Show info about package with given name
 
-`download <name>` - download extract AUR tarball with given name
+.. describe:: download <name>
+Download extract AUR tarball with given name
 
-`make <name>` - build package from PKGBUILD
+.. describe:: make <name>
+Build package from PKGBUILD
 
-`upload [<name>|<package path>] <category>` - upload given AUR tarball
+.. describe:: upload [<name>|<package path>] <category>
+Upload given AUR tarball
 
-`edit <name> <category>` - download, extract, run editor, pack and upload
-tarball with given name
+.. describe:: edit <name> <category>
+Download, extract, run editor, pack and upload tarball with given name
 
-`clean <name>` - clean given package build directory - remove all files
+.. describe:: clean <name>
+Clean given package build directory - remove all files
 
-`vote <name>` - vote on package
+.. describe:: vote <name>
+Vote on package
 
-`unvote <name>` - remove vote
+.. describe:: unvote <name>
+Remove vote
 
-`hash <name>` - show hash for given package (it does have to be downloaded
-allready)
+.. describe:: hash <name>
+Show hash for given package (it does have to be downloaded allready)

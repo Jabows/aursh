@@ -27,40 +27,59 @@ configuration variables
   names, there's alias system.
 
 
-`DEBUG` - set to  `True` to run aursh in debug mode.
+.. describe:: DEBUG
+Set to  `True` to run aursh in debug mode.
 
-`LOGGING_DIRECTORY` - root directory for log files
+.. describe:: LOGGING_DIRECTORY
+Root directory for log files
 
-`LOGGING_LEVELS` - custom log levels 
+.. describe:: LOGGING_LEVELS
+Custom log levels 
 
-`LOGGING_CONFIGURATION` - TODO
+.. describe:: LOGGING_CONFIGURATION
+TODO
 
-`AUR_BUILD_DIRECTORY` - rood directory for aursh builds
+.. describe:: AUR_BUILD_DIRECTORY
+Root directory for aursh builds
 
-`AUR_URL_MAIN` - AUR main page url
+.. describe:: AUR_URL_MAIN
+AUR main page url
 
-`AUR_URL_LOGIN` - AUR user login link 
+.. describe:: AUR_URL_LOGIN
+AUR user login link 
 
-`AUR_URL_SUBMIT` - AUR user submit link
+.. describe:: AUR_URL_SUBMIT
+AUR user submit link
 
-`AUR_USERNAME` - AUR user login
+.. describe:: AUR_USERNAME
+AUR user login
 
-`AUR_PASSWORD` - AUR user password
+.. describe:: AUR_PASSWORD
+AUR user password
 
-`MAKEPKG` - command for building package
+.. describe:: MAKEPKG
+Command for building package
 
-`PKG_INSTALL` - command for installink package
+.. describe:: PKG_INSTALL
+Command for installink package
 
-`PKG_EXT` - Arch Linux package extension
+.. describe:: PKG_EXT
+Arch Linux package extension
 
-`AUR_PKG_BUILD` - AUR tarball creation command
+.. describe:: AUR_PKG_BUILD
+AUR tarball creation command
 
-`AUR_PKG_EXT` - AUR tarball extension
+.. describe:: AUR_PKG_EXT
+AUR tarball extension
 
-`PKGBUILD_NAME` - `PKGBUILD` file name
+.. describe:: PKGBUILD_NAME
+PKGBUILD` file name
 
-`EDITOR` - default editor
+.. describe:: EDITOR
+Default editor
 
-`AUR_SEARCH_FORMAT` - list of fields shown by `aur search` command
+.. describe:: AUR_SEARCH_FORMAT
+List of fields shown by `aur search` command
 
-`AUR_INFO_FORMAT` - list of fields shown by `aur info` command
+.. describe:: AUR_INFO_FORMAT
+Cist of fields shown by `aur info` command
