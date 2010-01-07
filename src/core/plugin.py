@@ -33,6 +33,13 @@ class Plugin(object):
         "Raised when plugin command was called with bad arguments"
         pass
 
+    def __call__(self):
+        all_commands = self.get_all_commands()
+        for (name, handler) in all_commands.iteritems():
+            help_msg = self.get_help_message(handler, 18)
+            self.io.put('%15s - %s' % (name, help_msg))
+
+
     def handle_command(self, *args):
         if not args:
             return self()

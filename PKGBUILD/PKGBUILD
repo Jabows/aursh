@@ -1,7 +1,7 @@
 # Contributor: Piotr Husiatyński <phusiatynski@gmail.com>
 pkgname=aursh-git
 pkgrel=1
-pkgver=20100107
+pkgver=alpha1
 pkgdesc="yet another AUR manager"
 arch=(i686 x86_64)
 url="http://github.com/husio/aursh/tree/v2"
