@@ -80,6 +80,8 @@ class AurAuth(object):
 
 
 class Aur(Plugin):
+    """AUR management helper plugin
+    """
     aur_download_url = 'http://aur.archlinux.org/'
     aur_package_url = 'http://aur.archlinux.org/packages.php?ID=%d'
     allowed_categories = (None, 'daemons', 'devel', 'editors', 'emulators',

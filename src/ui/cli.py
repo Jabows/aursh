@@ -3,9 +3,10 @@
 import sys
 import traceback
 
-from core.plugin import registered_plugins
+from core.plugin import AliasPlugin, registered_plugins
 from core.conf import configuration
 from core import errors
+from core.tools import format_docstring
 from core.io import IO
 
 class ConsoleInterface(object):
@@ -38,7 +39,11 @@ class ConsoleInterface(object):
             pass
 
     def print_help(self):
-        self.io.put('TODO')
+        for (name, plugin) in registered_plugins.iteritems():
+            if isinstance(plugin, AliasPlugin):
+                continue
+            help_msg = format_docstring(plugin, 18)
+            self.io.put('%15s - %s' % (name, help_msg))
 
     def unknown_command(self, command):
         self.io.put('Unknown command: %s' % command)

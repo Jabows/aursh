@@ -4,7 +4,7 @@ import functools
 
 from core import errors
 from core.conf import configuration
-
+from core.tools import format_docstring
 
 registered_plugins = {}
 
@@ -36,7 +36,7 @@ class Plugin(object):
     def __call__(self):
         all_commands = self.get_all_commands()
         for (name, handler) in all_commands.iteritems():
-            help_msg = self.get_help_message(handler, 18)
+            help_msg = format_docstring(handler, 18)
             self.io.put('%15s - %s' % (name, help_msg))
 
 
@@ -66,16 +66,6 @@ class Plugin(object):
                 all_commands[cmd_name] = attr
             self._get_all_commands = all_commands
         return self._get_all_commands
-
-    def get_help_message(self, handler, lspace=20):
-        "Get formatted docstring message from any plugin handler"
-        doc = handler.__doc__
-        if not doc:
-            return ''
-        joiner = '\n' + ' ' * lspace
-        doc = doc.strip()
-        doc = doc.split('\n')
-        return joiner.join(line.strip() for line in doc)
 
 
 class AliasPlugin(Plugin):
