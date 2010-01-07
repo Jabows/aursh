@@ -295,12 +295,11 @@ class Aur(Plugin):
         shutil.rmtree(path)
         return True
 
-    def _get_package_directory(self, pkg_name):
-        return os.path.join(configuration.AUR_BUILD_DIRECTORY, pkg_name)
+    def _get_package_directory(self, pkg_name, *args):
+        return os.path.join(configuration.AUR_BUILD_DIRECTORY, pkg_name, *args)
 
     def _run_package_build(self, pkg_name, makepkg_flags):
-        chdir_to = os.path.join(
-                self._get_package_directory(pkg_name), pkg_name)
+        chdir_to = self._get_package_directory(pkg_name, pkg_name)
         _log.debug('changing working directory to: %s', chdir_to)
         os.chdir(chdir_to)
         makepkg_cmd = configuration.MAKEPKG + ' ' + ' '.join(makepkg_flags)
@@ -322,6 +321,7 @@ class Aur(Plugin):
                 exit_status = os.waitpid(install_proc.pid, 0)
                 if exit_status[1] != 0:
                     raise errors.PackageInstall(pkg_name)
+                return
         raise errors.PackageNotFound
 
     def _show_aur_search_result(self, data, rx_name=None):
