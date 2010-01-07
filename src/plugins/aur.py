@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import re
 import json
 import urllib
 import urllib2
@@ -105,10 +106,21 @@ class Aur(Plugin):
 
         Usage: aur search <search term>
         """
+        rx = None
+        # basic regexp support for search results
+        if pkg_name.startswith('^'):
+            pkg_name = pkg_name[1:]
+            rx = re.compile(pkg_name)
+        if pkg_name.endswith('$'):
+            if rx is None:
+                rx = re.compile(pkg_name)
+            pkg_name = pkg_name[:-1]
+        if not pkg_name:
+            raise errors.BadUsage('Search string is empty')
         query = AurQuery('search')
         query.filter(arg=pkg_name)
         result = query.fetch()
-        self._show_aur_search_result(result)
+        self._show_aur_search_result(result, rx)
 
     @plugin_command('pkgbuild')
     def pkgbuild(self, pkg_name):
@@ -312,13 +324,20 @@ class Aur(Plugin):
                     raise errors.PackageInstall(pkg_name)
         raise errors.PackageNotFound
 
-    def _show_aur_search_result(self, data):
+    def _show_aur_search_result(self, data, rx_name=None):
         show_format = configuration.AUR_SEARCH_FORMAT
         if data['type'] == 'error':
             _log.debug('bad search result: %s', data)
             self.io.put(data['results'])
             return
         for result in data['results']:
+            if rx_name:
+                for field_name in ['Name', 'Description']:
+                    value = result.get(field_name, '')
+                    if rx_name.search(value):
+                        break
+                else:
+                    continue
             for field_name in show_format:
                 field_data = result.get(field_name)
                 self.io.put('%20s: %s' % (field_name, field_data))
