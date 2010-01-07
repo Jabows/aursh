@@ -4,13 +4,14 @@ pkgrel=1
 pkgver=2
 pkgdesc="yet another AUR manager"
 arch=(i686 x86_64)
-url="http://github.com/husio/aursh"
+url="http://github.com/husio/aursh/tree/v2"
 license=('GPL')
-source=()
-md5sums=()
 depends=('python>=2.6')
 makedepends=('git')
-optdepends=('sudo' 'python-sphinx')
+replaces=('aurshell-git')
+optdepends=()
+source=()
+md5sums=()
 
 _gitname="aursh"
 _gitroot="git://github.com/husio/${_gitname}.git"
@@ -21,12 +22,15 @@ build() {
     msg "Connecting to ${_gitroot} git server"
     if [[ -d ${startdir}/src/${_gitname} ]] ; then
         cd ${_gitname}
+        git checkout ${_gitbranch} || return 1
         git pull ${_gitroot} ${_gitbranch} || return 1
         msg "The local copy of branch ${_gitbranch} is up to date."
     else
-        git clone ${_gitroot} ${_gitbranch}:${_gitbranch} || return 1
+        git clone ${_gitroot} ${_gitname} || return 1
+        cd ${_gitname}
+        git fetch ${_gitroot} ${_gitbranch}:${_gitbranch} || return 1
+        git checkout ${_gitbranch} || return 1
     fi
-    git checkout ${_gitbranch} || return 1
     msg "git checkout done"
     
     msg "Starting make..."
@@ -34,7 +38,7 @@ build() {
     cp -R ${startdir}/src/aursh/src/* ${startdir}/pkg/usr/share/aursh/
     install -Dm 755 ${startdir}/src/aursh/aursh \
         ${startdir}/pkg/usr/bin/aursh
-    install -Dm 755 ${startdir}/src/aursh/aurshrc \
+    install -Dm 644 ${startdir}/src/aursh/aurshrc \
         ${startdir}/pkg/usr/share/aursh/aurshrc
 }
 # vim:set ts=4 sw=4 et:
