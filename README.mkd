@@ -9,11 +9,11 @@ write plugin.
 How to start?
 -------------
 
-TODO. 
+You can simply build and install package using
+[PKGBUILD](http://aur.archlinux.org/packages.php?ID=33423).
 
 There are [some docs](http://github.com/husio/aursh/tree/v2/doc/), and
 first alpha is going to be relesed soon.
-
 
 
 Bugs
