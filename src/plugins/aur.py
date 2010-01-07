@@ -133,14 +133,14 @@ class Aur(Plugin):
         query = AurQuery('info')
         pkg = query.filter(arg=pkg_name).fetch()
         if pkg['type'] == 'error':
-            # TODO - does not exist
-            return
+            raise errors.PackageNotFound(pkg_name)
         url_path = pkg['results']['URLPath']
         if url_path.startswith('/'):
             url_path = url_path[1:]
         pkg_aur_url = os.path.join(self.aur_download_url, url_path)
         pkg_aur_name = pkg_aur_url.rsplit('/', 1)[1]
-        pkg_dest = self._create_package_directory(pkg_name, pkg_aur_name)
+        pkg_dest = os.path.join(
+                self._create_package_directory(pkg_name), pkg_aur_name)
         _log.debug('fetching package from: %s', pkg_aur_url)
         _log.debug('pkg_dest: %s', pkg_dest)
         urllib.urlretrieve(pkg_aur_url, pkg_dest)
