@@ -90,7 +90,10 @@ class Aur(Plugin):
 
     @plugin_command('info')
     def info(self, pkg_name):
-        """Get info about given package"""
+        """Get info about given package
+
+        Usage: aur info <package name>
+        """
         query = AurQuery('info')
         query.filter(arg=pkg_name)
         result = query.fetch()
@@ -98,7 +101,10 @@ class Aur(Plugin):
 
     @plugin_command('search')
     def search(self, pkg_name):
-        """Search package in AUR"""
+        """Search package in AUR
+
+        Usage: aur search <search term>
+        """
         query = AurQuery('search')
         query.filter(arg=pkg_name)
         result = query.fetch()
