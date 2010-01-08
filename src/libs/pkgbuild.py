@@ -31,8 +31,6 @@ import re
 import os
 
 __author__ = 'Piotr Husiatynski <phusiatynski@gmail.com>'
-__revision__ = '$Id$'
-
 __all__ = ['Pkgbuild', ]
 
 
@@ -183,8 +181,11 @@ class Pkgbuild(object):
                 text = self.get_text()
             parsers = {}
             # get all parsers methods
-            for met in [a for a in dir(self) if a.startswith("parse_")]:
-                parsers[met.split('_', 1)[1]] = getattr(self, met)
+            for attr_name in dir(self):
+                if not attr_name.startswith('parse_'):
+                    continue
+                name = attr_name.split('_', 1)[1]
+                parsers[name] = getattr(self, attr_name)
             for parser in parsers:
                 parsers[parser] = parsers[parser](text) or []
             self._parseall = parsers
