@@ -36,6 +36,8 @@ ALIASSES = {
 
 DEBUG = False
 
+USE_COLORS = True
+
 LOGGING_DIRECTORY = '/tmp/aursh/log'
 LOGGING_LEVELS = {}
 LOGGING_CONFIGURATION = {}
