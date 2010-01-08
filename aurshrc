@@ -5,8 +5,10 @@ ALIASSES = {
     '-Ss': ['aur', 'search'],
     'Ss': ['aur', 'search'],
 
-    '-Si': ['aur', 'info'],
-    'Si': ['aur', 'info'],
+    # '-Si': ['aur', 'info'],
+    # 'Si': ['aur', 'info'],
+    '-Si': ['aur', 'pkgbuild'],
+    'Si': ['aur', 'pkgbuild'],
 
     '-S': ['aur', 'install'],
     'S': ['aur', 'install'],
