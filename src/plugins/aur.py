@@ -300,6 +300,8 @@ class Aur(Plugin):
 
     def _run_package_build(self, pkg_name, makepkg_flags):
         chdir_to = self._get_package_directory(pkg_name, pkg_name)
+        if not os.path.isdir(chdir_to):
+            raise errors.PackageNotFound(pkg_name)
         _log.debug('changing working directory to: %s', chdir_to)
         os.chdir(chdir_to)
         makepkg_cmd = configuration.MAKEPKG + ' ' + ' '.join(makepkg_flags)
