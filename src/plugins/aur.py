@@ -142,6 +142,7 @@ class Aur(Plugin):
                 self._create_package_directory(pkg_name), pkg_aur_name)
         _log.debug('fetching package from: %s', pkg_aur_url)
         _log.debug('pkg_dest: %s', pkg_dest)
+        self.io.info('downloading package: %s' % pkg_aur_url)
         urllib.urlretrieve(pkg_aur_url, pkg_dest)
         self._extract_package(pkg_name, pkg_dest)
         return True
@@ -167,6 +168,7 @@ class Aur(Plugin):
             'category': self.allowed_categories.index(category),
             'pfile': open(pkg, 'rb'),
         }
+        self.io.info('uploading package: %s' % pkg)
         aur_auth(configuration.AUR_URL_SUBMIT, form_data)
         return True
 
@@ -292,6 +294,7 @@ class Aur(Plugin):
         path = self._get_package_directory(pkg_name)
         if not os.path.isdir(path):
             return False
+        self.io.info('removing directory: %s' % path)
         shutil.rmtree(path)
         return True
 
