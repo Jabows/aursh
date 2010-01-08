@@ -7,6 +7,8 @@ from core import errors
 
 
 class Configuration(dict):
+    "Configuration file mapper."
+
     _conf_file = 'aursh/aurshrc'
     env_prefix = 'AURSH_'
 

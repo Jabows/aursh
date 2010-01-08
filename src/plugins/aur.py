@@ -24,6 +24,12 @@ _log = logger.get('aur')
 
 
 class AurQuery(object):
+    """AUR query creator.
+
+
+    Class created to simplify AUR json api access.
+    """
+
     aur_rpc_url = 'http://aur.archlinux.org/rpc.php'
     allowed_queries = set(['info', 'search'])
 
@@ -33,9 +39,11 @@ class AurQuery(object):
 
     @property
     def query_type(self):
+        "Get current query object type"
         return self._query_params['type']
 
     def filter(self, **kwds):
+        "Filter using given parameters"
         self._query_params.update(kwds)
         return self
 
@@ -43,9 +51,11 @@ class AurQuery(object):
         return urllib.urlencode(self._query_params)
 
     def _to_url(self):
+        "Convert all given filter parameters to url"
         return self.aur_rpc_url + '?' + self._params()
 
     def fetch(self):
+        "Fetch objects from AUR, using given filters"
         conn = urllib.urlopen(self._to_url())
         try:
             raw_result = conn.read()
@@ -55,7 +65,10 @@ class AurQuery(object):
 
 
 class AurAuth(object):
-    """All actions that require AUR registration"""
+    """AUR web page authentication.
+
+    All actions that require AUR account.
+    """
 
     def __init__(self, login, password):
         self.login = login
@@ -93,8 +106,7 @@ class Aur(Plugin):
     @plugin_command('info')
     def info(self, pkg_name):
         """Get info about given package
-
-        Usage: aur info <package name>
+        Usage: info <package name>
         """
         query = AurQuery('info')
         query.filter(arg=pkg_name)
@@ -104,8 +116,7 @@ class Aur(Plugin):
     @plugin_command('search')
     def search(self, pkg_name):
         """Search package in AUR
-
-        Usage: aur search <search term>
+        Usage: search <search term>
         """
         rx = None
         # basic regexp support for search results
@@ -125,6 +136,9 @@ class Aur(Plugin):
 
     @plugin_command('pkgbuild')
     def pkgbuild(self, pkg_name):
+        """Read PKGBUILD form AUR and show selected values
+        Usage: pkgbuild <package name>
+        """
         pkgbuild = self._fetch_pkgbuild(pkg_name)
         pkg_data = pkgbuild.parseall()
         for field in configuration.PKGBUILD_FORMAT:
@@ -141,7 +155,9 @@ class Aur(Plugin):
 
     @plugin_command('download')
     def download(self, pkg_name):
-        """Download package from AUR"""
+        """Download package from AUR
+        Usage: download <pacmange name>
+        """
         query = AurQuery('info')
         pkg = query.filter(arg=pkg_name).fetch()
         if pkg['type'] == 'error':
@@ -157,16 +173,21 @@ class Aur(Plugin):
         _log.debug('pkg_dest: %s', pkg_dest)
         self.io.info('downloading package: %s' % pkg_aur_url)
         urllib.urlretrieve(pkg_aur_url, pkg_dest)
-        self._extract_package(pkg_name, pkg_dest)
+        self._extract_tarball(pkg_name, pkg_dest)
         return True
 
     @plugin_command('make')
     def make(self, pkg_name, *flags):
+        """Build package.
+        Usage: make <package name>
+        """
         return self._run_package_build(pkg_name, flags)
 
     @plugin_command('upload')
     def upload(self, pkg, category):
-        """Upload given package package"""
+        """Upload given package tarball
+        Usage: upload <package name>
+        """
         if not category in self.allowed_categories:
             raise errors.BadUsage('Unknown category: %s' % category)
         if os.path.isdir(pkg):
@@ -187,23 +208,34 @@ class Aur(Plugin):
 
     @plugin_command('edit')
     def edit(self, pkg_name, category):
-        """Download package from aur, run editor and push back"""
+        """Download package from aur, run editor and push back
+        Usage: edit <package name> <category>
+        """
         self.download(pkg_name)
         self._edit_pkgbuild(pkg_name)
         self.upload(pkg_name, category)
 
     @plugin_command('clean')
     def clean(self, pkg_name):
+        """Clean package build directory
+        Usage: clean <package name>
+        """
         self._remove_package_directory(pkg_name)
 
     @plugin_command('install')
     def install(self, pkg_name):
+        """Download, build and install package
+        Usage: install <package name>
+        """
         self.download(pkg_name)
         self.make(pkg_name)
         self._run_package_install(pkg_name)
 
     @plugin_command('comment')
     def comment(self, pkg_name, *message):
+        """Add comment on given package AUR web page
+        Usage: comment <package name> <message>
+        """
         message = ' '.join(message)
         package_id = self._get_package_id(pkg_name)
         aur_auth = AurAuth(configuration.AUR_USERNAME,
@@ -218,6 +250,9 @@ class Aur(Plugin):
 
     @plugin_command('vote')
     def vote(self, pkg_name, vote_type=None):
+        """Vote on package
+        Usage: vote <package name>
+        """
         vote = {'do_Vote': True}
         if vote_type in ['down', '-', '-1', 'remove', 'unvote']:
             vote = {'do_UnVote': 'UnVote'}
@@ -235,6 +270,9 @@ class Aur(Plugin):
 
     @plugin_command('hash')
     def hash(self, pkg_name):
+        """Print hashes for all packages in given package name build directory
+        Usage: hash <package name>
+        """
         for tarball in self._find_aur_tarballs(pkg_name):
             pkg_hash = self._get_tarball_md5(tarball)
             pkg_name = tarball.rsplit('/', 1)[1]
@@ -243,10 +281,16 @@ class Aur(Plugin):
 
     @plugin_command('unvote')
     def unvote(self, pkg_name):
+        """Remove vote for given package
+        Usage: unvote <package name>
+        """
         return self.vote(pkg_name, 'unvote')
 
     @plugin_command('upgrade')
     def upgrade(self):
+        """Upgrade all package installed from AUR
+        Usage: upgrade
+        """
         to_upgrade = {}
         for (pkg_name, version) in self._get_all_aur_packages():
             if not self._is_package_outdated(pkg_name, version):
@@ -290,11 +334,15 @@ class Aur(Plugin):
         for pkg_info in aur_pkg_lister.stdout:
             yield pkg_info.split()
 
-    def _extract_package(self, pkg_name, archive_path):
+    def _extract_tarball(self, pkg_name, archive_path):
+        "Extract given package tarball"
         archive = tarfile.open(archive_path, 'r:gz')
         archive.extractall(self._get_package_directory(pkg_name))
 
     def _create_package_directory(self, pkg_name, *args):
+        """Create package build directory based on it's name and optional
+        arguments.
+        """
         path = self._get_package_directory(pkg_name)
         path = os.path.join(path, *args)
         if not os.path.isdir(path):
@@ -304,6 +352,7 @@ class Aur(Plugin):
         return path
 
     def _remove_package_directory(self, pkg_name):
+        "Clean tarball build directory by removing it"
         path = self._get_package_directory(pkg_name)
         if not os.path.isdir(path):
             return False
@@ -312,6 +361,7 @@ class Aur(Plugin):
         return True
 
     def _get_package_directory(self, pkg_name, *args):
+        "Remove package build directory path"
         return os.path.join(configuration.AUR_BUILD_DIRECTORY, pkg_name, *args)
 
     def _run_package_build(self, pkg_name, makepkg_flags):

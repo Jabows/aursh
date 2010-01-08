@@ -39,6 +39,7 @@ class ConsoleInterface(object):
             pass
 
     def print_help(self):
+        "Show help message - info about all plugins"
         for (name, plugin) in registered_plugins.iteritems():
             if isinstance(plugin, AliasPlugin):
                 continue
@@ -46,4 +47,5 @@ class ConsoleInterface(object):
             self.io.put('%15s - %s' % (name, help_msg))
 
     def unknown_command(self, command):
+        "Show error message"
         self.io.put('Unknown command: %s' % command)

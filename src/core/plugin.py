@@ -10,6 +10,7 @@ from core.io import IO
 
 registered_plugins = {}
 
+
 PLUGIN_CMD_TOKEN = '_plugin_command_name'
 
 
@@ -28,6 +29,11 @@ class MetaPlugin(type):
 
 
 class Plugin(object):
+    """Base plugin class.
+
+    Each plugin should bases this class. This causes plugin class instance
+    creation and registation, with some additional, helpful methods.
+    """
 
     __metaclass__ = MetaPlugin
 
@@ -38,6 +44,7 @@ class Plugin(object):
         pass
 
     def __call__(self):
+        "Handler for non-params plugin call"
         plugin_doc = format_docstring(self, 18)
         plugin_name = type(self).__name__.lower()
         self.io.put()
@@ -51,6 +58,9 @@ class Plugin(object):
 
 
     def handle_command(self, *args):
+        """Handle given command (`args[0]`) with given number of optional
+        arguments
+        """
         if not args:
             return self()
         command = args[0]
@@ -79,6 +89,9 @@ class Plugin(object):
 
 
 class AliasPlugin(Plugin):
+    """Alias for any plugin handler. With this class you can create nice
+    shortcuts.
+    """
     def __init__(self, cmd_path):
         super(AliasPlugin, self).__init__()
         self.cmd_path = cmd_path
@@ -111,5 +124,8 @@ def plugin_command(cmd_name):
     return decorator
 
 def load_plugin_commands_aliases():
+    """Load aliases list from configuration file, and register instances of
+    `AliasPlugin`.
+    """
     for (alias, path) in configuration.ALIASSES.iteritems():
         registered_plugins[alias] = AliasPlugin(path)
