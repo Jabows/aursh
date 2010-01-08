@@ -33,6 +33,10 @@ class MissinFile(AurshError):
     pass
 
 
+class PkgbuildNotFound(MissinFile):
+    pass
+
+
 class PackageError(AurshError):
     submessage = 'Package error: %s'
 

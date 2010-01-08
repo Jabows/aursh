@@ -46,6 +46,7 @@ AUR_BUILD_DIRECTORY = '/tmp/aursh/'
 AUR_URL_MAIN = "http://aur.archlinux.org/"
 AUR_URL_LOGIN = "http://aur.archlinux.org/index.php"
 AUR_URL_SUBMIT = "http://aur.archlinux.org/pkgsubmit.php"
+AUR_PACKAGES = "http://aur.archlinux.org/packages/"
 AUR_URL_VOTE = ""
 
 MAKEPKG = 'makepkg -f'
@@ -81,6 +82,23 @@ AUR_INFO_FORMAT = (
     'License',
     #'OutOfDate',
     #'NumVotes',
+)
+
+PKGBUILD_FORMAT = (
+    'pkgname',
+    'contributor',
+    'maintrainer',
+    'pkgrel',
+    'pkgver',
+    'pkgdesc',
+    'arch',
+    'url',
+    'license',
+    'depends',
+    'makedepends',
+    'replaces',
+    'source',
+    'md5sum',
 )
 
 # vim:set ft=python :

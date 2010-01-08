@@ -12,6 +12,7 @@ import subprocess
 import hashlib
 
 from libs.multipartposthandler import MultipartPostHandler
+from libs.pkgbuild import Pkgbuild
 
 from core.plugin import Plugin, plugin_command
 from core.conf import configuration
@@ -124,7 +125,19 @@ class Aur(Plugin):
 
     @plugin_command('pkgbuild')
     def pkgbuild(self, pkg_name):
-        pass
+        pkgbuild = self._fetch_pkgbuild(pkg_name)
+        pkg_data = pkgbuild.parseall()
+        for field in configuration.PKGBUILD_FORMAT:
+            data = pkg_data.get(field, None)
+            if not data:
+                continue
+            if isinstance(data, list) or isinstance(data, tuple):
+                data = ', '.join(data)
+            data = data.decode('utf-8')
+            data = data.strip()
+            field = field.capitalize()
+            self.io.put("%s: %s" % (field.rjust(16), data))
+        return True
 
     @plugin_command('download')
     def download(self, pkg_name):
@@ -436,3 +449,16 @@ class Aur(Plugin):
     def _get_tarball_md5(self, pkg_path):
         with open(pkg_path) as pkg:
             return hashlib.md5(pkg.read()).hexdigest()
+
+    def _fetch_pkgbuild(self, pkg_name):
+        "Download PKGBUILD file from AUR and return `Pkgbuild` object"
+        url = configuration.AUR_PACKAGES
+        url = os.path.join(url, pkg_name, pkg_name,
+                configuration.PKGBUILD_NAME)
+        self.io.info('reading PKGBUILD: %s' % url)
+        pkg_www = urllib.urlopen(url)
+        if pkg_www.code != 200:
+            raise errors.PkgbuildNotFound('Response code: %s' % pkg_www.code)
+        pkgbuild = Pkgbuild(pkgbuild_text=pkg_www.read())
+        return pkgbuild
+
