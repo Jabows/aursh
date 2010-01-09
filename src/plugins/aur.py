@@ -348,6 +348,10 @@ class Aur(Plugin):
         if deps_groups['missing']:
             raise errors.PackageNotFound('Can\'t find packages: %s' % \
                     ', '.join(deps_groups['missing']))
+        if deps_groups['repo']:
+            self.io.info('Following packages will be installed from repository:')
+            for dep in deps_groups['repo']:
+                self.io.put('\t%s' % dep)
         if deps_groups['aur']:
             self.io.info('Following packages will be installed from AUR:')
             for dep in deps_groups['aur']:
