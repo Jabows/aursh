@@ -303,6 +303,7 @@ class Aur(Plugin):
         """
         aur_pkg_lister = subprocess.Popen(
                 configuration.AUR_INSTALLED_PKG, stdout=subprocess.PIPE)
+        exit_status = os.waitpid(aur_pkg_lister.pid, 0)
         for pkg_info in aur_pkg_lister.stdout:
             yield pkg_info.split()
 
@@ -519,25 +520,28 @@ class Aur(Plugin):
         aur_deps = []
         missing_deps = []
         for dep in deps:
-            pac_dep_proc = subprocess.Popen(['pacman', '-Si', dep],
-                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            if pac_dep_proc.returncode == 0:
-                pacman_deps.append(dep)
-                continue
-            # check if it exists in AUR
-            query = AurQuery('info')
             if '>=' in dep:
                 dep = dep.split('>=')[0]
             elif '<=' in dep:
                 dep = dep.split('<=')[0]
+            _log.debug('checking if packgage is in repo: %s', dep)
+            pacman_retcode = subprocess.call(['pacman', '-Si', dep],
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if pacman_retcode == 0:
+                pacman_deps.append(dep)
+                continue
+            # check if it exists in AUR
+            query = AurQuery('info')
             query.filter(arg=dep)
             result = query.fetch()
             if result['type'] == 'error':
                 missing_deps.append(dep)
                 continue
             aur_deps.append(dep)
-        return {
+        status = {
             'repo': pacman_deps,
             'aur': aur_deps,
             'missing': missing_deps,
         }
+        _log.debug('package groups: %s', status)
+        return status
