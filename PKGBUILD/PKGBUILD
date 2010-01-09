@@ -15,21 +15,16 @@ md5sums=()
 
 _gitname="aursh"
 _gitroot="git://github.com/husio/${_gitname}.git"
-_gitbranch="v2"
 
 build() {
     cd ${startdir}/src
     msg "Connecting to ${_gitroot} git server"
     if [[ -d ${startdir}/src/${_gitname} ]] ; then
         cd ${_gitname}
-        git checkout ${_gitbranch} || return 1
-        git pull ${_gitroot} ${_gitbranch} || return 1
-        msg "The local copy of branch ${_gitbranch} is up to date."
+        git pull origin || return 1
+        msg "The local copy is up to date."
     else
         git clone ${_gitroot} ${_gitname} || return 1
-        cd ${_gitname}
-        git fetch ${_gitroot} ${_gitbranch}:${_gitbranch} || return 1
-        git checkout ${_gitbranch} || return 1
     fi
     msg "git checkout done"
     
