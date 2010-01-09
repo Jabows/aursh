@@ -53,7 +53,7 @@ AUR_URL_SUBMIT = "http://aur.archlinux.org/pkgsubmit.php"
 AUR_PACKAGES = "http://aur.archlinux.org/packages/"
 AUR_URL_VOTE = ""
 
-MAKEPKG = 'makepkg -f'
+MAKEPKG = 'makepkg -fs'
 PKG_INSTALL = 'sudo pacman -U '
 PKG_EXT = '.pkg.tar.gz'
 AUR_PKG_BUILD = 'makepkg --source -f'
