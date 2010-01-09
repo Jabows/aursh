@@ -5,6 +5,10 @@ class AurshError(Exception):
     pass
 
 
+class QuitSilently(Exception):
+    pass
+
+
 class UnknownCommand(AurshError):
     pass
 
@@ -38,21 +42,16 @@ class PkgbuildNotFound(MissinFile):
 
 
 class PackageError(AurshError):
-    submessage = 'Package error: %s'
-
-    def __init__(self, pkg_name):
-        self.pkg_name = pkg_name
-        message = self.submessage % self.pkg_name
-        super(PackageError, self).__init__(message)
+    pass
 
 
 class PackageNotFound(PackageError):
-    submessage = 'Package not found: %s'
+    pass
 
 
 class PackageBuildError(PackageError):
-    submessage = 'Can\'t build package: %s'
+    pass
 
 
 class PackageInstallationError(PackageError):
-    submessage = 'Can\'t install package: %s'
+    pass

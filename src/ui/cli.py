@@ -33,6 +33,8 @@ class ConsoleInterface(object):
             return
         try:
             handler.handle_command(*arguments)
+        except errors.QuitSilently:
+            return
         except errors.AurshError as e:
             err_message = '\n'.join(e.args)
             self.io.error('%s\n%s' % \

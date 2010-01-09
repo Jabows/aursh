@@ -342,6 +342,22 @@ class Aur(Plugin):
             raise errors.PackageNotFound(pkg_name)
         _log.debug('changing working directory to: %s', chdir_to)
         os.chdir(chdir_to)
+        pkgbuild = Pkgbuild('PKGBUILD')
+        deps_groups = self._check_deps(pkgbuild.parse_depends())
+        if deps_groups['missing']:
+            raise errors.PackageNotFound('Can\'t find packages: %s' % \
+                    ', '.join(deps_groups['missing']))
+        if deps_groups['aur']:
+            self.io.info('Following packages will be installed from AUR:')
+            for dep in deps_groups['aur']:
+                self.io.put('\t%s' % dep)
+            self.io.info('Continue?  [y/N]: ', newline=False)
+            response = self.io.read_char()
+            self.io.put()
+            if response not in 'Yy':
+                raise errors.QuitSilently
+        for aur_dep in deps_groups['aur']:
+            self.install(aur_dep)
         makepkg_cmd = configuration.MAKEPKG + ' ' + ' '.join(makepkg_flags)
         makepkg = subprocess.Popen(makepkg_cmd, shell=True)
         exit_status = os.waitpid(makepkg.pid, 0)
@@ -484,3 +500,44 @@ class Aur(Plugin):
         pkgbuild = Pkgbuild(pkgbuild_text=pkg_www.read())
         return pkgbuild
 
+    def _check_deps(self, deps_to_check):
+        """Check each given package if it can be installed from arch
+        repositore, AUR or it can't be installed.
+        Returns dict with list of packages:
+        {
+            'repo': [...]
+            'aur': [...]
+            'missing': [...]
+        }
+        """
+        cmd = ['pacman', '-T']
+        cmd.extend(deps_to_check)
+        deps_proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        deps = deps_proc.stdout.read().split()
+        self.io.info('missing dependencies:\n\t%s' % '\n\t'.join(deps))
+        pacman_deps = []
+        aur_deps = []
+        missing_deps = []
+        for dep in deps:
+            pac_dep_proc = subprocess.Popen(['pacman', '-Si', dep],
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if pac_dep_proc.returncode == 0:
+                pacman_deps.append(dep)
+                continue
+            # check if it exists in AUR
+            query = AurQuery('info')
+            if '>=' in dep:
+                dep = dep.split('>=')[0]
+            elif '<=' in dep:
+                dep = dep.split('<=')[0]
+            query.filter(arg=dep)
+            result = query.fetch()
+            if result['type'] == 'error':
+                missing_deps.append(dep)
+                continue
+            aur_deps.append(dep)
+        return {
+            'repo': pacman_deps,
+            'aur': aur_deps,
+            'missing': missing_deps,
+        }
