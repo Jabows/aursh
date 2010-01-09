@@ -519,7 +519,8 @@ class Aur(Plugin):
         cmd.extend(deps_to_check)
         deps_proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         deps = deps_proc.stdout.read().split()
-        self.io.info('missing dependencies:\n\t%s' % '\n\t'.join(deps))
+        if deps:
+            self.io.info('missing dependencies:\n\t%s' % '\n\t'.join(deps))
         pacman_deps = []
         aur_deps = []
         missing_deps = []
