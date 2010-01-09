@@ -381,7 +381,7 @@ class Aur(Plugin):
                 install_proc = subprocess.Popen(install_cmd, shell=True)
                 exit_status = os.waitpid(install_proc.pid, 0)
                 if exit_status[1] != 0:
-                    raise errors.PackageInstall(pkg_name)
+                    raise errors.PackageInstallationError(pkg_name)
                 return
         raise errors.PackageNotFound
 
