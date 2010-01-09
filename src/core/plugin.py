@@ -6,12 +6,13 @@ from core import errors
 from core.conf import configuration
 from core.tools import format_docstring
 from core.io import IO
+from core.hooks import Hook
 
 
 registered_plugins = {}
 
 
-PLUGIN_CMD_TOKEN = '_plugin_command_name'
+PLUGIN_CMD_TOKEN = '_plugin_command_data'
 
 
 class MetaPlugin(type):
@@ -56,6 +57,9 @@ class Plugin(object):
             help_msg = format_docstring(handler, 18)
             self.io.put('%15s - %s' % (name, help_msg))
 
+    def run_hook(self, hook_name, *args):
+        hook = Hook(hook_name)
+        return hook(*args)
 
     def handle_command(self, *args):
         """Handle given command (`args[0]`) with given number of optional
@@ -69,7 +73,17 @@ class Plugin(object):
         handler = all_handlers.get(command, None)
         if handler is None:
             raise errors.UnknownCommand('Unknown command: %s' % command)
-        return handler(*params)
+        pre_hook = Hook('pre_' + command)
+        pre_hook_res = pre_hook(params)
+        if pre_hook_res:
+            raise errors.HookFailed('Hook error code: %d' % pre_hook_res)
+        return_code = handler(*params)
+        post_hook = Hook('post_' + command)
+        post_hook_res = post_hook(params)
+        if post_hook_res:
+            raise errors.HookFailed('Hook error code: %d' % post_hook_res)
+        return return_code
+
 
     def get_all_commands(self):
         """Return dict with all command attributes that current plugin
@@ -104,9 +118,10 @@ class AliasPlugin(Plugin):
         return handler(*params)
 
 
-def plugin_command(cmd_name):
+def plugin_command(cmd_name, cmd_params=''):
     """All objects decorated with this function will be used as application
     commands.
+    Attach help message.
     """
     def decorator(func):
         @functools.wraps(func)
@@ -117,7 +132,8 @@ def plugin_command(cmd_name):
                 err = ''
                 doc = func.__doc__
                 if doc:
-                    err = '\n'.join(l.strip() for l in doc.split('\n'))
+                    err = 'Usage: %s %s\n' % (cmd_name, cmd_params)
+                    err += '\n'.join(l.strip() for l in doc.split('\n'))
                 raise Plugin.BadUsage(err)
         setattr(wrapper, PLUGIN_CMD_TOKEN, cmd_name)
         return wrapper

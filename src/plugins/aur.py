@@ -103,21 +103,17 @@ class Aur(Plugin):
             'xfce')
 
 
-    @plugin_command('info')
+    @plugin_command('info', '<package name>')
     def info(self, pkg_name):
-        """Get info about given package
-        Usage: info <package name>
-        """
+        "Get info about given package"
         query = AurQuery('info')
         query.filter(arg=pkg_name)
         result = query.fetch()
         self._show_aur_info_result(result)
 
-    @plugin_command('search')
+    @plugin_command('search', '<search term>')
     def search(self, pkg_name):
-        """Search package in AUR
-        Usage: search <search term>
-        """
+        "Search package in AUR"
         rx = None
         # basic regexp support for search results
         if pkg_name.startswith('^'):
@@ -134,11 +130,9 @@ class Aur(Plugin):
         result = query.fetch()
         self._show_aur_search_result(result, rx)
 
-    @plugin_command('pkgbuild')
+    @plugin_command('pkgbuild', '<package name>')
     def pkgbuild(self, pkg_name):
-        """Read PKGBUILD form AUR and show selected values
-        Usage: pkgbuild <package name>
-        """
+        "Read PKGBUILD form AUR and show selected values"
         pkgbuild = self._fetch_pkgbuild(pkg_name)
         pkg_data = pkgbuild.parseall()
         for field in configuration.PKGBUILD_FORMAT:
@@ -153,11 +147,9 @@ class Aur(Plugin):
             self.io.put("%s: %s" % (field.rjust(16), data))
         return True
 
-    @plugin_command('download')
+    @plugin_command('download', '<package name>')
     def download(self, pkg_name):
-        """Download package from AUR
-        Usage: download <pacmange name>
-        """
+        "Download package from AUR"
         query = AurQuery('info')
         pkg = query.filter(arg=pkg_name).fetch()
         if pkg['type'] == 'error':
@@ -176,18 +168,14 @@ class Aur(Plugin):
         self._extract_tarball(pkg_name, pkg_dest)
         return True
 
-    @plugin_command('make')
+    @plugin_command('make', '<package name>')
     def make(self, pkg_name, *flags):
-        """Build package.
-        Usage: make <package name>
-        """
+        "Build package."
         return self._run_package_build(pkg_name, flags)
 
-    @plugin_command('upload')
+    @plugin_command('upload', '<package name> <AUR category>')
     def upload(self, pkg, category):
-        """Upload given package tarball
-        Usage: upload <package name>
-        """
+        "Upload given package tarball"
         if not category in self.allowed_categories:
             raise errors.BadUsage('Unknown category: %s' % category)
         if os.path.isdir(pkg):
@@ -206,36 +194,28 @@ class Aur(Plugin):
         aur_auth(configuration.AUR_URL_SUBMIT, form_data)
         return True
 
-    @plugin_command('edit')
+    @plugin_command('edit', '<package name> <AUR category>')
     def edit(self, pkg_name, category):
-        """Download package from aur, run editor and push back
-        Usage: edit <package name> <category>
-        """
+        "Download package from aur, run editor and push back"
         self.download(pkg_name)
         self._edit_pkgbuild(pkg_name)
         self.upload(pkg_name, category)
 
-    @plugin_command('clean')
+    @plugin_command('clean', '<package name>')
     def clean(self, pkg_name):
-        """Clean package build directory
-        Usage: clean <package name>
-        """
+        "Clean package build directory"
         self._remove_package_directory(pkg_name)
 
-    @plugin_command('install')
+    @plugin_command('install', '<package name>')
     def install(self, pkg_name):
-        """Download, build and install package
-        Usage: install <package name>
-        """
+        "Download, build and install package"
         self.download(pkg_name)
         self.make(pkg_name)
         self._run_package_install(pkg_name)
 
-    @plugin_command('comment')
+    @plugin_command('comment', '<package name> <message>')
     def comment(self, pkg_name, *message):
-        """Add comment on given package AUR web page
-        Usage: comment <package name> <message>
-        """
+        "Add comment on given package AUR web page"
         message = ' '.join(message)
         package_id = self._get_package_id(pkg_name)
         aur_auth = AurAuth(configuration.AUR_USERNAME,
@@ -248,11 +228,9 @@ class Aur(Plugin):
         aur_auth(comment_url, form_data)
         return True
 
-    @plugin_command('vote')
+    @plugin_command('vote', '<package name>')
     def vote(self, pkg_name, vote_type=None):
-        """Vote on package
-        Usage: vote <package name>
-        """
+        "Vote on package"
         vote = {'do_Vote': True}
         if vote_type in ['down', '-', '-1', 'remove', 'unvote']:
             vote = {'do_UnVote': 'UnVote'}
@@ -268,29 +246,23 @@ class Aur(Plugin):
         x = aur_auth(vote_url, form_data)
         return True
 
-    @plugin_command('hash')
+    @plugin_command('hash', '<package name>')
     def hash(self, pkg_name):
-        """Print hashes for all packages in given package name build directory
-        Usage: hash <package name>
-        """
+        "Print hashes for all packages in given package name build directory"
         for tarball in self._find_aur_tarballs(pkg_name):
             pkg_hash = self._get_tarball_md5(tarball)
             pkg_name = tarball.rsplit('/', 1)[1]
             self.io.put('%42s: %s' % (pkg_name, pkg_hash))
         return True
 
-    @plugin_command('unvote')
+    @plugin_command('unvote', '<package name>')
     def unvote(self, pkg_name):
-        """Remove vote for given package
-        Usage: unvote <package name>
-        """
+        "Remove vote for given package"
         return self.vote(pkg_name, 'unvote')
 
     @plugin_command('upgrade')
     def upgrade(self):
-        """Upgrade all package installed from AUR
-        Usage: upgrade
-        """
+        "Upgrade all package installed from AUR"
         to_upgrade = {}
         for (pkg_name, version) in self._get_all_aur_packages():
             if not self._is_package_outdated(pkg_name, version):

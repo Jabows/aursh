@@ -8,6 +8,12 @@ from core.conf import configuration
 from core import errors
 from core.tools import format_docstring
 from core.io import IO
+from core import logger
+
+
+_log = logger.get('cli')
+
+
 
 class ConsoleInterface(object):
     def __init__(self, conf):
@@ -37,6 +43,10 @@ class ConsoleInterface(object):
                 raise e
         except KeyboardInterrupt:
             pass
+        except Exception as e:
+            _log.exception('Uhandled exception')
+            self.io.error('Unhandled error occures.\n'
+                    'Traceback was written in %s.log file' % _log.name)
 
     def print_help(self):
         "Show help message - info about all plugins"

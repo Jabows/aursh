@@ -44,6 +44,8 @@ LOGGING_DIRECTORY = '/tmp/aursh/log'
 LOGGING_LEVELS = {}
 LOGGING_CONFIGURATION = {}
 
+HOOKS_DIRECTORY = '~/aursh/hooks'
+
 AUR_BUILD_DIRECTORY = '/tmp/aursh/'
 AUR_URL_MAIN = "http://aur.archlinux.org/"
 AUR_URL_LOGIN = "http://aur.archlinux.org/index.php"

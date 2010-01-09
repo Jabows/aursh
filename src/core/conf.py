@@ -49,7 +49,10 @@ class Configuration(dict):
 
     def __getattr__(self, name):
         if name in self:
-            return self[name]
+            value = self[name]
+            if name.endswith('DIRECTORY'):
+                value = os.path.expanduser(value)
+            return value
         env_var = os.getenv(self.env_prefix + name)
         if env_var:
             return env_var
