@@ -271,6 +271,9 @@ class Aur(Plugin):
             if not new_version:
                 continue
             to_upgrade[pkg_name] = (version, new_version)
+        if not to_upgrade:
+            self.io.info('Everything is up to date')
+            return True
         self.io.info('Following packages will be upgraded from AUR:')
         for (pkg_name, versions) in to_upgrade.iteritems():
             self.io.put('  %26s  %8s -> %s' % \
