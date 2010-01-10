@@ -207,12 +207,13 @@ class Aur(Plugin):
         "Clean package build directory"
         self._remove_package_directory(pkg_name)
 
-    @plugin_command('install', '<package name>')
-    def install(self, pkg_name):
+    @plugin_command('install', '<package name>, [<package name>, ...]')
+    def install(self, *packages):
         "Download, build and install package"
-        self.download(pkg_name)
-        self.make(pkg_name)
-        self._run_package_install(pkg_name)
+        for pkg_name in packages:
+            self.download(pkg_name)
+            self.make(pkg_name)
+            self._run_package_install(pkg_name)
 
     @plugin_command('comment', '<package name> <message>')
     def comment(self, pkg_name, *message):
