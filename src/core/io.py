@@ -42,7 +42,7 @@ class IO(object):
             message = '\033[1;31m%s\033[0m %s' % (prefix, message)
         self.put(message, newline)
 
-    def read_char(self, stdin=None):
+    def read_char(self, stdin=None, newline=True):
         "Read single character from stdin"
         stdin = stdin or self.stdin
         fd = stdin.fileno()
@@ -52,4 +52,6 @@ class IO(object):
             gotchar = stdin.read(1)
         finally:
             termios.tcsetattr(fd, termios.TCSADRAIN, default_settings)
+        if newline:
+            self.put()
         return gotchar

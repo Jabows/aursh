@@ -18,6 +18,7 @@ from core.plugin import Plugin, plugin_command
 from core.conf import configuration
 from core import logger
 from core import errors
+from core.tools import compare_versions
 
 
 _log = logger.get('aur')
@@ -265,14 +266,20 @@ class Aur(Plugin):
         "Upgrade all package installed from AUR"
         to_upgrade = {}
         for (pkg_name, version) in self._get_all_aur_packages():
-            if not self._is_package_outdated(pkg_name, version):
+            new_version = self._is_package_outdated(pkg_name, version)
+            if not new_version:
                 continue
-            to_upgrade[pkg_name] = version
-        # TODO - show summary, confirm upgrade
+            to_upgrade[pkg_name] = (version, new_version)
+        self.io.info('Following packages will be upgraded from AUR:')
+        for (pkg_name, versions) in to_upgrade.iteritems():
+            self.io.put('  %26s  %8s -> %s' % \
+                    (pkg_name, versions[0], versions[1]))
+        self.io.info('Continue?  [y/N]: ', newline=False)
+        response = self.io.read_char()
+        if response not in 'yY':
+            raise errors.QuitSilently
         for pkg_name in to_upgrade:
-            self.download(pkg_name)
-            self.make(pkg_name)
-            self._run_package_install(pkg_name)
+            self.install(pkg_name)
         return True
 
     def _find_missing_dependencies(self, pkg_name):
@@ -281,28 +288,33 @@ class Aur(Plugin):
     def _is_package_outdated(self, pkg_name, version):
         """Check in AUR if package with given name and version is outdated.
 
-        Returns True or False.
+        Returns False or new version.
         """
         query = AurQuery('info')
         query.filter(arg=pkg_name)
         result = query.fetch()
         if result['type'] == 'error':
             _log.debug('bad search result: %s', pkg_name)
-            self.io.put('package does not exist in AUR: %s' % pkg_name)
+            self.io.warning('package does not exist in AUR: %s' % pkg_name)
             return
         pkg = result['results']
         assert pkg_name == pkg['Name']
         aur_version = pkg['Version']
-        # TODO - compare versions! This is mock cmp ;)
-        return version < aur_version
+        try:
+            if compare_versions(version, aur_version) < 0:
+                return aur_version
+        except TypeError:
+            self.io.warning('can\'t compare versions: %s - %s' % \
+                    (version, aur_version))
+        return False
 
     def _get_all_aur_packages(self):
         """Get list of packages installed from AUR
 
         Return format is (package name, package version), both string type.
         """
-        aur_pkg_lister = subprocess.Popen(
-                configuration.AUR_INSTALLED_PKG, stdout=subprocess.PIPE)
+        aur_pkg_cmd = configuration.AUR_INSTALLED_PKG.split()
+        aur_pkg_lister = subprocess.Popen(aur_pkg_cmd, stdout=subprocess.PIPE)
         exit_status = os.waitpid(aur_pkg_lister.pid, 0)
         for pkg_info in aur_pkg_lister.stdout:
             yield pkg_info.split()

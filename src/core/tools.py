@@ -10,11 +10,19 @@ RX_VERSION_SEP = re.compile(r'[.-]')
 def compare_versions(v1, v2):
     """Compare two versions in any format. Returns 1 if `v1` is greater than
     `v2`. 0 if they are equal. If `v2` is greater than `v1`, returns  -1.
+
+    >>> compare_versions('2.0.1', '2.0')
+    1
+    >>> compare_versions('2.0', '2.0')
+    0
+    >>> compare_versions('2.0', '2.0.1')
+    -1
+    >>> compare_versions('2.0', '1.9.99')
+    1
     """
     def _prepare_version_tokens(version):
         "Return version tokens in reverse order"
         version = RX_VERSION_SEP.split(version)
-        version.reverse()
         return version
     def _compare_tokens(t1, t2):
         if t1 == t2:
@@ -38,7 +46,7 @@ def compare_versions(v1, v2):
         if result == 0:
             continue
         return result
-    return 0
+    return len(v1) - len(v2)
 
 
 def format_docstring(object, lmargin=20):
