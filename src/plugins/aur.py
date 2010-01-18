@@ -394,11 +394,13 @@ class Aur(Plugin):
         for f in os.listdir(chdir_to):
             if f.endswith(configuration.PKG_EXT):
                 install_cmd = configuration.PKG_INSTALL + ' ' + f
-                install_proc = subprocess.Popen(install_cmd, shell=True)
-                exit_status = os.waitpid(install_proc.pid, 0)
-                if exit_status[1] != 0:
+                _log.debug('running package installer: %s', install_cmd)
+                exit_status = subprocess.call(install_cmd)
+                _log.debug('installation ended with: %d', exit_status)
+                if exit_status:
                     raise errors.PackageInstallationError(pkg_name)
                 return
+        _log.debug('didn\'t found any package in: %s', chdir_to)
         raise errors.PackageNotFound
 
     def _show_aur_search_result(self, data, rx_name=None):
