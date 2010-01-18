@@ -393,7 +393,8 @@ class Aur(Plugin):
         os.chdir(chdir_to)
         for f in os.listdir(chdir_to):
             if f.endswith(configuration.PKG_EXT):
-                install_cmd = configuration.PKG_INSTALL + ' ' + f
+                install_cmd = configuration.PKG_INSTALL.split()
+                install_cmd.append(f)
                 _log.debug('running package installer: %s', install_cmd)
                 exit_status = subprocess.call(install_cmd)
                 _log.debug('installation ended with: %d', exit_status)

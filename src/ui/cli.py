@@ -34,6 +34,7 @@ class ConsoleInterface(object):
         try:
             handler.handle_command(*arguments)
         except errors.QuitSilently:
+            _log.debug('QuitSilently')
             return
         except errors.AurshError as e:
             err_message = '\n'.join(e.args)
