@@ -9,6 +9,10 @@ class QuitSilently(Exception):
     pass
 
 
+class Forbidden(AurshError):
+    pass
+
+
 class UnknownCommand(AurshError):
     pass
 
