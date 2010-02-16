@@ -266,16 +266,16 @@ class Aur(Plugin):
     def upgrade(self):
         "Upgrade all package installed from AUR"
         to_upgrade = {}
-        for (pkg_name, version) in self._get_all_aur_packages():
-            new_version = self._is_package_outdated(pkg_name, version)
-            if not new_version:
+        pkg_status = self._get_aur_versions(self._get_all_aur_packages())
+        for (pkg_name, ver_local, ver_aur, is_outdated) in pkg_status:
+            if not is_outdated:
                 continue
-            to_upgrade[pkg_name] = (version, new_version)
+            to_upgrade[pkg_name] = (ver_local, ver_aur)
         if not to_upgrade:
             self.io.info('Everything is up to date')
             return True
         self.io.info('Following packages will be upgraded from AUR:')
-        for (pkg_name, versions) in to_upgrade.iteritems():
+        for (pkg_name, versions) in to_upgrade.items():
             self.io.put('  %26s  %8s -> %s' % \
                     (pkg_name, versions[0], versions[1]))
         self.io.info('Continue?  [y/N]: ', newline=False)
@@ -289,28 +289,93 @@ class Aur(Plugin):
     def _find_missing_dependencies(self, pkg_name):
         raise NotImplemented
 
-    def _is_package_outdated(self, pkg_name, version):
-        """Check in AUR if package with given name and version is outdated.
+    def _get_aur_versions(self, packages):
+        """Get list of AUR packages versions.
 
-        Returns False or new version.
+        Returns list of tuples in format:
+            (package name, local version, aur version, comparison)
+        where comparison value may be True if there's newer version of package
+        in AUR, False if not and None it comparison failed.
         """
-        query = AurQuery('info')
-        query.filter(arg=pkg_name)
-        result = query.fetch()
-        if result['type'] == 'error':
-            _log.debug('bad search result: %s', pkg_name)
-            self.io.warning('package does not exist in AUR: %s' % pkg_name)
-            return
-        pkg = result['results']
-        assert pkg_name == pkg['Name']
-        aur_version = pkg['Version']
         try:
-            if compare_versions(version, aur_version) < 0:
-                return aur_version
-        except TypeError:
-            self.io.warning('can\'t compare versions: %s - %s' % \
-                    (version, aur_version))
-        return False
+            return self._get_aur_versions_tx(packages)
+        except ImportError:
+            return self._get_aur_versions(packages)
+
+    def _get_aur_versions_blocking(self, packages):
+        """Blocking implementation of `_get_aur_versions` method, based on
+        urllib.urlopen from standard library.
+        """
+        versions = []
+        for pkg_name, version in packages:
+            query = AurQuery('info')
+            query.filter(arg=pkg_name)
+            result = query.fetch()
+            if result['type'] == 'error':
+                _log.debug('bad search result: %s', pkg_name)
+                self.io.warning('package does not exist in AUR: %s' % pkg_name)
+                continue
+            pkg = result['results']
+            assert pkg_name == pkg['Name']
+            aur_version = pkg['Version']
+            try:
+                comparison = compare_versions(version, aur_version) < 0
+                versions.append((pkg_name, version, aur_version, comparison))
+                continue
+            except TypeError:
+                self.io.warning('can\'t compare versions: %s - %s' % \
+                        (version, aur_version))
+            # comparision failed - push None
+            versions.append((pkg_name, version, aur_version, None))
+        return versions
+
+    def _get_aur_versions_tx(self, packages):
+        """This is ugly twisted powered implementation of `_get_aur_versions`
+        method.
+
+        Twisted library is not required, so this may raise ImportError
+        exception.
+        """
+        # this import may throw exception - that's ok - we don't care
+        from twisted.internet import reactor
+        from twisted.web.client import getPage
+        from twisted.internet.defer import DeferredList
+        versions = []
+        deferreds = []
+
+        def check_aur_version(url, pkg_name, version):
+            "Deferreds factory"
+            def save_aur_version(raw_result):
+                "getPage callback"
+                result = json.loads(raw_result)
+                if result['type'] == 'error':
+                    _log.debug('bad search result: %s', pkg_name)
+                    self.io.warning('package does not exist in AUR: %s' % pkg_name)
+                    return
+                pkg = result['results']
+                assert pkg_name == pkg['Name']
+                aur_version = pkg['Version']
+                try:
+                    comparison = compare_versions(version, aur_version) < 0
+                    versions.append((pkg_name, version, aur_version, comparison))
+                    return
+                except TypeError:
+                    self.io.warning('can\'t compare versions: %s - %s' % \
+                            (version, aur_version))
+                versions.append((pkg_name, version, aur_version, None))
+
+            d = getPage(url)
+            d.addCallback(save_aur_version)
+            return d
+
+        for pkg_name, version in packages:
+            query = AurQuery('info')
+            query.filter(arg=pkg_name)
+            d = check_aur_version(query._to_url(), pkg_name, version)
+            deferreds.append(d)
+        DeferredList(deferreds).addCallback(lambda x: reactor.stop())
+        reactor.run()
+        return versions
 
     def _get_all_aur_packages(self):
         """Get list of packages installed from AUR
