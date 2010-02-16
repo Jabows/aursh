@@ -22,9 +22,11 @@ prefix added to base variable name.
 configuration variables
 -----------------------
 
-`ALIASSES` - By default, all commands are available using plugin name and
-  that plugin command handler. But because you may wany to use `pacman`-like
-  names, there's alias system.
+.. describe:: ALIASSES
+
+By default, all commands are available using plugin name and that plugin
+command handler. But because you may wany to use `pacman`-like names, there's
+alias system.
 
 
 .. describe:: DEBUG
