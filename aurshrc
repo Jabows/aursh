@@ -105,4 +105,10 @@ PKGBUILD_FORMAT = (
     'md5sum',
 )
 
+# put here names of packages, that aush should ignore.
+AUR_IGNORE_NAMES = set(
+    'policykit',
+    'policykit-gnome',
+)
+
 # vim:set ft=python :

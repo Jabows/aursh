@@ -36,10 +36,11 @@ class AurQuery(object):
 
     def __init__(self, query_type):
         assert query_type in self.allowed_queries
+        self._cache = {}
         self._query_params = {'type': query_type}
 
     @property
-    def query_type(self):
+    def type(self):
         "Get current query object type"
         return self._query_params['type']
 
@@ -51,18 +52,33 @@ class AurQuery(object):
     def _params(self):
         return urllib.urlencode(self._query_params)
 
-    def _to_url(self):
+    @property
+    def url(self):
         "Convert all given filter parameters to url"
         return self.aur_rpc_url + '?' + self._params()
 
     def fetch(self):
-        "Fetch objects from AUR, using given filters"
-        conn = urllib.urlopen(self._to_url())
-        try:
-            raw_result = conn.read()
-        finally:
-            conn.close()
-        return json.loads(raw_result)
+        """Fetch objects from AUR, using given filters
+
+        Results are cached per url. This is safe, because urls should allways
+        returns the same data.
+        """
+        url = self.url
+        if not url in self._cache:
+            conn = urllib.urlopen(url)
+            try:
+                raw_result = conn.read()
+            finally:
+                conn.close()
+            result = json.loads(raw_result)
+            # remove all packages that are marked as ignored
+            ignored_names = configuration.get('AUR_IGNORE_NAMES', None)
+            if ignored_names:
+                for i, result in enumerate(result['results']):
+                    if result['Name'] in ignored_names:
+                        result.pop(i)
+            self._cache[url] = result
+        return self._cache[url]
 
 
 class AurAuth(object):
@@ -371,7 +387,7 @@ class Aur(Plugin):
         for pkg_name, version in packages:
             query = AurQuery('info')
             query.filter(arg=pkg_name)
-            d = check_aur_version(query._to_url(), pkg_name, version)
+            d = check_aur_version(query.url, pkg_name, version)
             deferreds.append(d)
         DeferredList(deferreds).addCallback(lambda x: reactor.stop())
         reactor.run()
@@ -385,8 +401,13 @@ class Aur(Plugin):
         aur_pkg_cmd = configuration.AUR_INSTALLED_PKG.split()
         aur_pkg_lister = subprocess.Popen(aur_pkg_cmd, stdout=subprocess.PIPE)
         exit_status = os.waitpid(aur_pkg_lister.pid, 0)
+        ignored_names = configuration.get('AUR_IGNORE_NAMES', [])
         for pkg_info in aur_pkg_lister.stdout:
-            yield pkg_info.split()
+            name, version = pkg_info.split()
+            # do not yeild names from ignored list
+            if name in ignored_names:
+                continue
+            yield (name, version)
 
     def _extract_tarball(self, pkg_name, archive_path):
         "Extract given package tarball"
