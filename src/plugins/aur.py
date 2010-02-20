@@ -73,7 +73,7 @@ class AurQuery(object):
             results = json.loads(raw_result)
             # remove all packages that are marked as ignored
             ignored_names = configuration.get('AUR_IGNORE_NAMES', None)
-            if ignored_names:
+            if ignored_names and self.type == 'search':
                 for i, r in enumerate(results['results']):
                     if r['Name'] in ignored_names:
                         r.pop(i)
