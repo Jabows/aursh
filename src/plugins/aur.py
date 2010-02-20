@@ -70,14 +70,14 @@ class AurQuery(object):
                 raw_result = conn.read()
             finally:
                 conn.close()
-            result = json.loads(raw_result)
+            results = json.loads(raw_result)
             # remove all packages that are marked as ignored
             ignored_names = configuration.get('AUR_IGNORE_NAMES', None)
             if ignored_names:
-                for i, result in enumerate(result['results']):
-                    if result['Name'] in ignored_names:
-                        result.pop(i)
-            self._cache[url] = result
+                for i, r in enumerate(results['results']):
+                    if r['Name'] in ignored_names:
+                        r.pop(i)
+            self._cache[url] = results
         return self._cache[url]
 
 
