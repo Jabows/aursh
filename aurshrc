@@ -111,4 +111,12 @@ AUR_IGNORE_NAMES = set(
     'policykit-gnome',
 )
 
+PACNET_PKG_FORMAT = (
+    'name',
+    'version',
+    'category__name',
+    'description',
+    'www',
+)
+
 # vim:set ft=python :
