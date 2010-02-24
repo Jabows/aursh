@@ -281,24 +281,42 @@ class Aur(Plugin):
     @plugin_command('upgrade')
     def upgrade(self):
         "Upgrade all package installed from AUR"
+        # list of packages to upgrade
+        up_pkg_names = []
+        # list of regular packages
         to_upgrade = {}
+        # list of packages build from repository code
+        from_repo = {}
         pkg_status = self._get_aur_versions(self._get_all_aur_packages())
         for (pkg_name, ver_local, ver_aur, is_outdated) in pkg_status:
-            if not is_outdated:
-                continue
-            to_upgrade[pkg_name] = (ver_local, ver_aur)
-        if not to_upgrade:
+            if is_outdated:
+                to_upgrade[pkg_name] = (ver_local, ver_aur)
+            else:
+                if not configuration.get('REPO_PKG_ALLWAYS_ASK_TO_UP', False):
+                    continue
+                for repo_ending in configuration.REPO_PKG_ENDING:
+                    if pkg_name.endswith(repo_ending):
+                        from_repo[pkg_name] = (ver_local, None)
+                        break
+        if not to_upgrade and not from_repo:
             self.io.info('Everything is up to date')
             return True
-        self.io.info('Following packages will be upgraded from AUR:')
-        for (pkg_name, versions) in to_upgrade.items():
-            self.io.put('  %26s  %8s -> %s' % \
-                    (pkg_name, versions[0], versions[1]))
-        self.io.info('Continue?  [y/N]: ', newline=False)
-        response = self.io.read_char()
-        if response not in 'yY':
-            raise errors.QuitSilently
-        for pkg_name in to_upgrade:
+        if from_repo:
+            self.io.info('Following packages are build using repository code:')
+            for (pkg_name, versions) in from_repo.items():
+                self.io.put('  %26s  %s' % (pkg_name, versions[0]))
+            self.io.info('Wan\'t to upgrade them? [y/N]: ', newline=False)
+            if self.io.read_char() in 'yY':
+                up_pkg_names.extend(from_repo.keys())
+        if to_upgrade:
+            self.io.info('Following packages will be upgraded from AUR:')
+            for (pkg_name, versions) in to_upgrade.items():
+                self.io.put('  %26s  %8s -> %s' % \
+                        (pkg_name, versions[0], versions[1]))
+            self.io.info('Wan\'t to upgrade them?  [y/N]: ', newline=False)
+            if self.io.read_char() in 'Yy':
+                up_pkg_names.extend(to_upgrade.keys())
+        for pkg_name in up_pkg_names:
             self.install(pkg_name)
         return True
 

@@ -65,6 +65,10 @@ PKGBUILD_NAME = 'PKGBUILD'
 
 EDITOR = os.getenv('EDITOR') or 'vim'
 
+# list of package name endings for packages build from code repository
+REPO_PKG_ENDING = ['svn', 'bzr', 'git', 'hg']
+REPO_PKG_ALLWAYS_ASK_TO_UP = True
+
 # AUR_USERNAME = 'your username'
 # AUR_PASSWORD = 'secred passoword'
 
