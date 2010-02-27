@@ -110,7 +110,7 @@ PKGBUILD_FORMAT = (
 )
 
 # put here names of packages, that aush should ignore.
-AUR_IGNORE_NAMES = set(
+AUR_IGNORE_NAMES = (
     'policykit',
     'policykit-gnome',
 )
