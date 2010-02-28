@@ -292,9 +292,7 @@ class Aur(Plugin):
         for (pkg_name, ver_local, ver_aur, is_outdated) in pkg_status:
             if is_outdated:
                 to_upgrade[pkg_name] = (ver_local, ver_aur)
-            else:
-                if not configuration.get('REPO_PKG_ALLWAYS_ASK_TO_UP', False):
-                    continue
+            elif configuration.get('REPO_PKG_ALLWAYS_ASK_TO_UP', False):
                 for repo_ending in configuration.REPO_PKG_ENDING:
                     if pkg_name.endswith(repo_ending):
                         from_repo[pkg_name] = (ver_local, None)
@@ -303,7 +301,7 @@ class Aur(Plugin):
             self.io.info('Everything is up to date')
             return True
         if from_repo:
-            self.io.info('Following packages are build using repository code:')
+            self.io.info('Following packages were build using repository code:')
             for (pkg_name, versions) in from_repo.items():
                 self.io.put('  %26s  %s' % (pkg_name, versions[0]))
             self.io.info('Wan\'t to upgrade them? [y/N]: ', newline=False)
@@ -320,9 +318,6 @@ class Aur(Plugin):
         for pkg_name in up_pkg_names:
             self.install(pkg_name)
         return True
-
-    def _find_missing_dependencies(self, pkg_name):
-        raise NotImplemented
 
     def _get_aur_versions(self, packages):
         """Get list of AUR packages versions.
